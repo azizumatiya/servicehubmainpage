@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - TechConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* --- DESIGN TOKENS & CSS VARIABLES (Same as Hero) --- */
+        :root {
+            --color-bg: #0a0a0a;
+            --color-surface: #1a1a1a;
+            --color-text-primary: #f0f0f0;
+            --color-text-secondary: #a0a0a0;
+            --neon-pink: #ff006e;
+            --neon-purple: #8338ec;
+            --neon-blue: #3a86ff;
+            --neon-green: #06ffa5;
+            --glitch-color-1: var(--neon-pink);
+            --glitch-color-2: var(--neon-blue);
+
+            --font-primary: 'Rajdhani', sans-serif;
+            --font-accent: 'Orbitron', sans-serif;
+            --font-size-base: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 22px;
+            --font-size-2xl: 28px;
+            --font-size-3xl: 36px;
+            --font-size-4xl: 56px;
+
+            --space-4: 16px;
+            --space-5: 24px;
+            --space-6: 32px;
+            --space-8: 64px;
+            --space-10: 80px;
+        }
+
+        /* --- GLOBAL RESET & BASE STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--color-bg);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-5);
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-accent);
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        p {
+            font-size: var(--font-size-lg);
+            color: var(--color-text-secondary);
+        }
+
+        /* --- PAGE HEADER --- */
+        .page-header {
+            text-align: center;
+            padding: var(--space-10) 0 var(--space-6);
+            position: relative;
+        }
+        .page-header h1 {
+            font-size: var(--font-size-4xl);
+            margin-bottom: var(--space-4);
+            position: relative;
+            display: inline-block;
+        }
+        .page-header p {
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: var(--font-size-xl);
+        }
+
+        /* Glitch Effect for Page Header */
+        .page-header h1::before,
+        .page-header h1::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .page-header h1 {
+            color: var(--color-text-primary);
+            animation: glitch-page-header 3s infinite;
+        }
+        .page-header h1::before {
+            animation: glitch-1 3s infinite;
+            color: var(--glitch-color-1);
+            z-index: -1;
+        }
+        .page-header h1::after {
+            animation: glitch-2 3s infinite;
+            color: var(--glitch-color-2);
+            z-index: -2;
+        }
+        @keyframes glitch-page-header {
+            0%, 90%, 100% { text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75), -0.05em -0.025em 0 rgba(0, 255, 0, 0.75), 0.025em 0.05em 0 rgba(0, 0, 255, 0.75); }
+            92% { text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75), 0.025em 0.025em 0 rgba(0, 255, 0, 0.75), -0.05em -0.05em 0 rgba(0, 0, 255, 0.75); }
+            94% { text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75), 0.05em 0 0 rgba(0, 255, 0, 0.75), 0 -0.05em 0 rgba(0, 0, 255, 0.75); }
+        }
+        @keyframes glitch-1 {
+            0%, 90%, 100% { clip-path: inset(0 0 0 0); transform: translate(0, 0); }
+            92% { clip-path: inset(20% 0 50% 0); transform: translate(-2px, 1px); }
+            94% { clip-path: inset(50% 0 20% 0); transform: translate(2px, -1px); }
+        }
+        @keyframes glitch-2 {
+            0%, 90%, 100% { clip-path: inset(0 0 0 0); transform: translate(0, 0); }
+            92% { clip-path: inset(60% 0 20% 0); transform: translate(2px, 1px); }
+            94% { clip-path: inset(10% 0 60% 0); transform: translate(-2px, -1px); }
+        }
+
+        /* --- CATEGORY FILTER --- */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+            padding-bottom: var(--space-6);
+            border-bottom: 1px solid var(--color-surface);
+        }
+        .filter-btn {
+            font-family: var(--font-accent);
+            font-weight: 700;
+            font-size: var(--font-size-base);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 20px;
+            background-color: transparent;
+            color: var(--color-text-secondary);
+            border: 2px solid var(--color-surface);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .filter-btn:hover,
+        .filter-btn.active {
+            color: var(--neon-blue);
+            border-color: var(--neon-blue);
+            box-shadow: inset 0 0 10px var(--neon-blue), 0 0 10px var(--neon-blue);
+        }
+        .filter-btn.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--neon-blue), transparent 70%);
+            opacity: 0.3;
+            animation: pulse-filter 2s infinite;
+        }
+        @keyframes pulse-filter {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* --- SERVICES GRID --- */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--space-6);
+            padding-bottom: var(--space-10);
+        }
+        .service-card {
+            background-color: var(--color-surface);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: var(--space-6);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-purple), var(--neon-blue));
+            opacity: 0;
+            z-index: 0;
+            transition: opacity 0.4s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(58, 134, 255, 0.3);
+        }
+        .service-card:hover::before {
+            opacity: 0.1;
+        }
+        .service-card > * { /* Ensure content is above the pseudo-element */
+            position: relative;
+            z-index: 1;
+        }
+        .service-icon {
+            font-size: 3.5rem;
+            margin-bottom: var(--space-5);
+            color: var(--neon-blue);
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 10px var(--neon-blue));
+        }
+        .service-card:hover .service-icon {
+            color: var(--neon-green);
+            filter: drop-shadow(0 0 15px var(--neon-green));
+            transform: scale(1.1) rotate(5deg);
+        }
+        .service-card h3 {
+            font-size: var(--font-size-2xl);
+            margin-bottom: var(--space-4);
+            color: var(--color-text-primary);
+        }
+        .service-card p {
+            margin-bottom: var(--space-6);
+            min-height: 80px; /* For consistent card height */
+        }
+        .service-card .btn {
+            background-color: transparent;
+            color: var(--neon-blue);
+            border: 2px solid var(--neon-blue);
+            padding: 10px 25px;
+            font-size: var(--font-size-base);
+        }
+        .service-card .btn:hover {
+            background-color: var(--neon-blue);
+            color: var(--color-bg);
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 var(--space-4);
+            }
+            .page-header h1 {
+                font-size: var(--font-size-3xl);
+            }
+            .page-header p {
+                font-size: var(--font-size-base);
+            }
+            .filter-btn {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-5);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PAGE HEADER -->
+    <header class="page-header">
+        <div class="container">
+            <h1 data-text="Our Core Services">Our Core Services</h1>
+            <p>We offer a suite of cutting-edge solutions designed to propel your business into the future. Explore our expertise.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- CATEGORY FILTER -->
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">All Services</button>
+            <button class="filter-btn" data-filter="home">Home Services</button>
+            <button class="filter-btn" data-filter="tech">Tech Support</button>
+            <button class="filter-btn" data-filter="consulting">Consulting</button>
+        </div>
+
+        <!-- SERVICES GRID -->
+        <section class="services-grid" id="servicesContainer">
+            <!-- Service Card 1 -->
+            <div class="service-card" data-category="home">
+                <i class="fas fa-bolt service-icon"></i>
+                <h3>Electrical Solutions</h3>
+                <p>From minor fixes to full wiring, our certified electricians ensure your home is powered safely and efficiently.</p>
+                <a href="#" class="btn">Learn More</a>
+            </div>
+
+            <!-- Service Card 2 -->
+            <div class="service-card" data-category="home">
+                <i class="fas fa-faucet service-icon"></i>
+                <h3>Plumbing & Repairs</h3>
+                <p>Expert plumbing services for installations, repairs, and emergencies. We keep the water flowing smoothly.</p>
+                <a href="#" class="btn">Learn More</a>
+            </div>
+
+            <!-- Service Card 3 -->
+            <div class="service-card" data-category="tech">
+                <i class="fas fa-laptop-code service-icon"></i>
+                <h3>Tech Support</h3>
+                <p>24/7 support for hardware, software, and network issues. We get you back online, fast.</p>
+                <a href="#" class="btn">Learn More</a>
+            </div>
+
+            <!-- Service Card 4 -->
+            <div class="service-card" data-category="consulting">
+                <i class="fas fa-chart-line service-icon"></i>
+                <h3>IT Consulting</h3>
+                <p>Strategic IT consulting to optimize your infrastructure, boost security, and drive growth.</p>
+                <a href="#" class="btn">Learn More</a>
+            </div>
+
+            <!-- Service Card 5 -->
+            <div class="service-card" data-category="home">
+                <i class="fas fa-paint-roller service-icon"></i>
+                <h3>Home Renovation</h3>
+                <p>Transform your space with our comprehensive renovation and interior design services.</p>
+                <a href="#" class="btn">Learn More</a>
+            </div>
+
+            <!-- Service Card 6 -->
+            <div class="service-card" data-category="tech">
+                <i class="fas fa-shield-alt service-icon"></i>
+                <h3>Cybersecurity</h3>
+                <p>Protect your digital assets with our advanced cybersecurity solutions and threat analysis.</p>
+                <a href="#" class="btn">Learn More</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- FILTER FUNCTIONALITY ---
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const serviceCards = document.querySelectorAll('.service-card');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to the clicked button
+                    button.classList.add('active');
+
+                    const filter = button.getAttribute('data-filter');
+
+                    serviceCards.forEach(card => {
+                        // If 'all' is selected or card matches the filter
+                        if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                            card.style.display = 'block'; // Show the card
+                            // Add a slight delay for a staggered animation effect
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 100);
+                        } else {
+                            // Hide the card
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                            }, 400); // Match the transition duration
+                        }
+                    });
+                });
+            });
+
+            // --- INITIAL ANIMATION FOR CARDS ---
+            // Ensure cards animate in on page load
+            serviceCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100); // Stagger the animation
+            });
+        });
+    </script>
+
+</body>
+</html>

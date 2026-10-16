@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technician Service Homepage</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<style>
+    /* ====== GLOBAL & RESET ====== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Poppins', sans-serif;
+    background: #FFFFFF;
+    color: #1A1A1A;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* ====== TYPOGRAPHY ====== */
+h1, h2, h3, h4 {
+    font-weight: 700;
+    color: #1A1A1A;
+}
+
+h1 { font-size: 44px; }
+h2 { font-size: 32px; margin-bottom: 10px; }
+h3 { font-size: 20px; }
+h4 { font-size: 18px; }
+
+p {
+    font-size: 16px;
+    color: #555;
+}
+
+a {
+    text-decoration: none;
+    color: #0A74DA;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ====== BUTTONS ====== */
+.btn {
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn.primary {
+    background: #0A74DA;
+    color: white;
+    box-shadow: 0 4px 10px rgba(10, 116, 218, 0.2);
+}
+
+.btn.primary:hover {
+    background: #0866C8;
+}
+
+.btn.secondary {
+    background: white;
+    color: #0A74DA;
+    border: 2px solid #0A74DA;
+}
+
+.btn.secondary:hover {
+    background: #EEF5FF;
+}
+
+/* ====== HEADER ====== */
+.navbar {
+    background: white;
+    border-bottom: 1px solid #F1F1F1;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #0A74DA;
+}
+
+.logo i {
+    margin-right: 10px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-menu a {
+    font-weight: 500;
+    color: #4D4D4D;
+}
+
+.nav-menu a:hover {
+    color: #0A74DA;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.mobile-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* ====== HERO ====== */
+.hero {
+    padding: 120px 0 100px;
+}
+
+.hero .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+}
+
+.hero-content {
+    flex: 1;
+}
+
+.hero-image {
+    flex: 1;
+    text-align: center;
+}
+
+.hero-image img {
+    max-width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.hero-features {
+    list-style: none;
+    margin: 20px 0;
+}
+
+.hero-features li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.hero-features i {
+    color: #0A74DA;
+    margin-right: 10px;
+}
+
+.search-bar {
+    display: flex;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 20px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+.search-bar button {
+    background: #0A74DA;
+    color: white;
+    border: none;
+    padding: 0 30px;
+    cursor: pointer;
+}
+
+.trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 500;
+}
+
+.stars {
+    color: #FFA500;
+}
+
+/* ====== SERVICES ====== */
+.services {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin: 40px 0;
+}
+
+.service-card {
+    background: white;
+    border: 1px solid #F3F3F3;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.service-card i {
+    font-size: 48px;
+    color: #0A74DA;
+    margin-bottom: 15px;
+}
+
+.service-card h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+/* ====== TECHNICIANS ====== */
+.technicians {
+    padding: 80px 0;
+}
+
+.tech-slider {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.tech-card {
+    min-width: 280px;
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.tech-card:hover {
+    transform: scale(1.02);
+}
+
+.tech-card img {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 2px solid #0A74DA;
+    margin-bottom: 15px;
+}
+
+.verified {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #28A745;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.rating i {
+    color: #FFA500;
+}
+
+.price {
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* ====== WHY CHOOSE US ====== */
+.why-choose {
+    background: #EEF5FF;
+    padding: 80px 0;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.feature-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.feature-card i {
+    font-size: 36px;
+    color: #0A74DA;
+    margin-bottom: 15px;
+}
+
+/* ====== HOW IT WORKS ====== */
+.how-it-works {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.steps {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 40px 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 200px;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: #0A74DA;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.step i {
+    font-size: 32px;
+    color: #0A74DA;
+    margin-bottom: 10px;
+}
+
+/* ====== TESTIMONIALS ====== */
+.testimonials {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.testimonial-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.testimonial-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: left;
+}
+
+.testimonial-card img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+}
+
+.stars {
+    color: #FFA500;
+    margin-bottom: 10px;
+}
+
+.job {
+    font-style: italic;
+    color: #777;
+    margin-top: 10px;
+}
+
+/* ====== APP DOWNLOAD ====== */
+.app-download {
+    padding: 80px 0;
+}
+
+.app-download .container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.app-content {
+    flex: 1;
+}
+
+.app-mockup {
+    flex: 1;
+    text-align: center;
+}
+
+.app-mockup img {
+    max-width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.store-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.store-buttons button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid #DDD;
+    background: white;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* ====== FOOTER ====== */
+footer {
+    background: #0C1B3A;
+    color: white;
+    padding: 80px 0 40px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-col h4 {
+    color: white;
+    margin-bottom: 20px;
+}
+
+.footer-col p,
+.footer-col a {
+    color: #CCC;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.footer-col a:hover {
+    color: white;
+    text-decoration: none;
+}
+
+.socials a {
+    color: white;
+    margin-right: 15px;
+    font-size: 20px;
+}
+
+.footer-bottom {
+    border-top: 1px solid #2A3A5A;
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-links a {
+    color: #CCC;
+    margin-left: 20px;
+}
+
+/* ====== MOBILE RESPONSIVE ====== */
+@media (max-width: 768px) {
+    .nav-menu,
+    .nav-buttons {
+        display: none;
+    }
+    .mobile-toggle {
+        display: block;
+    }
+    .hero .container,
+    .app-download .container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .services-grid,
+    .features-grid,
+    .testimonial-cards,
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+    .steps {
+        flex-direction: column;
+        align-items: center;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+</style>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-tools"></i>
+                <span>TechFix</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#">Home</a>
+                <a href="#">Services</a>
+                <a href="#">Technicians</a>
+                <a href="#">Pricing</a>
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
+            </nav>
+            <div class="nav-buttons">
+                <button class="btn secondary">Login</button>
+                <button class="btn primary">Sign Up</button>
+            </div>
+            <div class="mobile-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Find Trusted Technicians for Every Service</h1>
+                <p>Book certified technicians for home repair, appliances, electrical, plumbing and more.</p>
+                <ul class="hero-features">
+                    <li><i class="fas fa-check-circle"></i> Verified Professionals</li>
+                    <li><i class="fas fa-clock"></i> 60-min Response</li>
+                    <li><i class="fas fa-shield-alt"></i> Service Guarantee</li>
+                </ul>
+                <div class="search-bar">
+                    <input type="text" placeholder="Service">
+                    <input type="text" placeholder="Location">
+                    <button><i class="fas fa-search"></i></button>
+                </div>
+                <div class="trust-badge">
+                    <span>Trusted by 50,000+ customers</span>
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="https://via.placeholder.com/600x400" alt="Technician Illustration">
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Category Grid -->
+    <section class="services">
+        <div class="container">
+            <h2>Popular Services</h2>
+            <p>Choose from our most booked services</p>
+            <div class="services-grid">
+                <div class="service-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Electrician</h3>
+                    <p>Repair & installation</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-wrench"></i>
+                    <h3>Plumber</h3>
+                    <p>Pipe & fixture experts</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-snowflake"></i>
+                    <h3>AC Repair</h3>
+                    <p>Fast cooling solutions</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-temperature-low"></i>
+                    <h3>Refrigerator Repair</h3>
+                    <p>Cooling restore service</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-hammer"></i>
+                    <h3>Carpenter</h3>
+                    <p>Woodwork & furniture</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-video"></i>
+                    <h3>CCTV Setup</h3>
+                    <p>Security installation</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-tshirt"></i>
+                    <h3>Washing Machine</h3>
+                    <p>Wash & care repair</p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-paint-roller"></i>
+                    <h3>Painting</h3>
+                    <p>Home & office painting</p>
+                </div>
+            </div>
+            <button class="btn secondary">View More Services</button>
+        </div>
+    </section>
+
+    <!-- Featured Technicians -->
+    <section class="technicians">
+        <div class="container">
+            <h2>Top Rated Technicians Near You</h2>
+            <p>Professionals verified with ID, training and ratings.</p>
+            <div class="tech-slider">
+                <div class="tech-card">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Technician">
+                    <span class="verified"><i class="fas fa-check-circle"></i></span>
+                    <h3>Rajesh Kumar</h3>
+                    <p>Electrician</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <span>4.8 (124)</span>
+                    </div>
+                    <p class="price">₹499 per visit</p>
+                    <button class="btn primary">Book Now</button>
+                </div>
+                <div class="tech-card">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Technician">
+                    <span class="verified"><i class="fas fa-check-circle"></i></span>
+                    <h3>Priya Sharma</h3>
+                    <p>Plumber</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <span>4.9 (98)</span>
+                    </div>
+                    <p class="price">₹599 per visit</p>
+                    <button class="btn primary">Book Now</button>
+                </div>
+                <div class="tech-card">
+                    <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="Technician">
+                    <span class="verified"><i class="fas fa-check-circle"></i></span>
+                    <h3>Amit Patel</h3>
+                    <p>AC Repair</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <span>4.7 (210)</span>
+                    </div>
+                    <p class="price">₹699 per visit</p>
+                    <button class="btn primary">Book Now</button>
+                </div>
+                <div class="tech-card">
+                    <img src="https://randomuser.me/api/portraits/women/28.jpg" alt="Technician">
+                    <span class="verified"><i class="fas fa-check-circle"></i></span>
+                    <h3>Neha Singh</h3>
+                    <p>Carpenter</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <span>4.6 (87)</span>
+                    </div>
+                    <p class="price">₹799 per visit</p>
+                    <button class="btn primary">Book Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="why-choose">
+        <div class="container">
+            <h2>Why Choose Our Technicians?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-user-check"></i>
+                    <h3>Certified & Verified Technicians</h3>
+                    <p>All professionals are background-checked and trained.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Quick 60-minute Response</h3>
+                    <p>Fast arrival at your doorstep for urgent issues.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-tag"></i>
+                    <h3>Affordable Transparent Pricing</h3>
+                    <p>No hidden fees. Know the cost before booking.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-handshake"></i>
+                    <h3>7-Day Service Guarantee</h3>
+                    <p>We stand by our service with a warranty.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <i class="fas fa-list"></i>
+                    <h3>Select Service</h3>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <i class="fas fa-user-tie"></i>
+                    <h3>Choose Technician</h3>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Book & Relax</h3>
+                </div>
+            </div>
+            <button class="btn primary">Book Your Service Now</button>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <h2>What Our Customers Say</h2>
+            <div class="testimonial-cards">
+                <div class="testimonial-card">
+                    <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Customer">
+                    <h4>Vikram Mehta</h4>
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>Quick service and professional technician. Fixed my AC in no time!</p>
+                    <p class="job">AC Repair Service</p>
+                </div>
+                <div class="testimonial-card">
+                    <img src="https://randomuser.me/api/portraits/women/50.jpg" alt="Customer">
+                    <h4>Anita Joshi</h4>
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>Excellent plumber. Very polite and did the job perfectly.</p>
+                    <p class="job">Plumbing Service</p>
+                </div>
+                <div class="testimonial-card">
+                    <img src="https://randomuser.me/api/portraits/men/60.jpg" alt="Customer">
+                    <h4>Rohan Verma</h4>
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>Great experience. Electrician arrived on time and solved the issue.</p>
+                    <p class="job">Electrician Service</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- App Download -->
+    <section class="app-download">
+        <div class="container">
+            <div class="app-content">
+                <h2>Download Our App</h2>
+                <p>Manage bookings anywhere, anytime.</p>
+                <ul>
+                    <li><i class="fas fa-check"></i> Real-time tracking</li>
+                    <li><i class="fas fa-check"></i> Easy payments</li>
+                    <li><i class="fas fa-check"></i> Service history</li>
+                </ul>
+                <div class="store-buttons">
+                    <button><i class="fab fa-google-play"></i> Google Play</button>
+                    <button><i class="fab fa-apple"></i> App Store</button>
+                </div>
+            </div>
+            <div class="app-mockup">
+                <img src="https://via.placeholder.com/300x600" alt="App Mockup">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo">
+                        <i class="fas fa-tools"></i>
+                        <span>TechFix</span>
+                    </div>
+                    <p>Your trusted partner for all home repair and service needs.</p>
+                    <div class="socials">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">Services</a>
+                    <a href="#">Technicians</a>
+                    <a href="#">Pricing</a>
+                    <a href="#">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Services</h4>
+                    <a href="#">Electrician</a>
+                    <a href="#">Plumber</a>
+                    <a href="#">AC Repair</a>
+                    <a href="#">Carpenter</a>
+                    <a href="#">Painting</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact Info</h4>
+                    <p><i class="fas fa-phone"></i> +91 98765 43210</p>
+                    <p><i class="fas fa-envelope"></i> support@techfix.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Ahmedabad, India</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 TechFix. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">Terms</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+document.querySelector('.mobile-toggle').addEventListener('click', () => {
+    document.querySelector('.nav-menu').classList.toggle('active');
+});
+
+// Optional: Add smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+    </script>
+</body>
+</html>

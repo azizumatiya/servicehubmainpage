@@ -1,0 +1,409 @@
+"use client";
+
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Search, Mic, Filter, Star, MapPin, ChevronDown, ChevronUp } from "lucide-react";
+
+/**
+ * SmartServiceFinderFull.tsx
+ *
+ * - All technician categories & subtypes included
+ * - Price removed
+ * - Best choice auto-highlighting
+ * - Filters: location, rating, category, subtype, search text
+ * - Voice input to auto-fill location/problem and run matching
+ *
+ * Requirements:
+ * - Tailwind CSS for styling
+ * - lucide-react for icons (npm i lucide-react)
+ *
+ * Drop into: src/app/homepage/components/SmartServiceFinderFull.tsx
+ */
+
+type Tech = {
+  id: number;
+  name: string;
+  category: string; // e.g. "Electrical Technicians"
+  subtype: string; // e.g. "Electrician (General)"
+  description: string;
+  rating: number; // 1-5
+  locations: string[]; // tags like city names / localities
+  isVerified?: boolean;
+};
+
+const TECH_LIST: Tech[] = [
+  // HOME APPLIANCE (1-10)
+  { id: 1, name: "AC Technician", category: "Home Appliance Technicians", subtype: "AC Technician", description: "AC servicing, gas filling, repair, installation.", rating: 4.6, locations: ["Mumbai","Delhi","Bangalore","Hyderabad"], isVerified:true },
+  { id: 2, name: "Refrigerator Technician", category: "Home Appliance Technicians", subtype: "Refrigerator Technician", description: "Cooling issues, compressor repair.", rating: 4.4, locations: ["Mumbai","Pune","Ahmedabad"] },
+  { id: 3, name: "Washing Machine Technician", category: "Home Appliance Technicians", subtype: "Washing Machine Technician", description: "Front/Top load repair, motor service.", rating: 4.5, locations: ["Chennai","Bangalore"] },
+  { id: 4, name: "Microwave Oven Technician", category: "Home Appliance Technicians", subtype: "Microwave Oven Technician", description: "Heating issue, touchpad, magnetron repair.", rating: 4.2, locations: ["Delhi","Noida"] },
+  { id: 5, name: "RO Water Purifier Technician", category: "Home Appliance Technicians", subtype: "RO Technician", description: "RO filter change, servicing.", rating: 4.3, locations: ["Kolkata","Bhubaneswar"] },
+  { id: 6, name: "Geyser Technician", category: "Home Appliance Technicians", subtype: "Geyser Technician", description: "Heating element replace, installation/repair.", rating: 4.1, locations: ["Delhi","Chandigarh"] },
+  { id: 7, name: "Dishwasher Technician", category: "Home Appliance Technicians", subtype: "Dishwasher Technician", description: "Drain, heating & spray arm repair.", rating: 4.0, locations: ["Bangalore","Mumbai"] },
+  { id: 8, name: "Chimney Technician", category: "Home Appliance Technicians", subtype: "Chimney Technician", description: "Deep cleaning, motor repair, duct installation.", rating: 4.0, locations: ["Hyderabad","Pune"] },
+  { id: 9, name: "Gas Stove/Hob Technician", category: "Home Appliance Technicians", subtype: "Gas Stove/Hob Technician", description: "Burner repair, knob change, gas leakage fix.", rating: 4.2, locations: ["All"] },
+  { id: 10, name: "Home Theater Technician", category: "Home Appliance Technicians", subtype: "Home Theater Technician", description: "Setup, wiring, sound calibration.", rating: 4.3, locations: ["Bangalore","Mumbai"] },
+
+  // ELECTRICAL (11-20)
+  { id: 11, name: "Electrician (General)", category: "Electrical Technicians", subtype: "Electrician (General)", description: "Switchboard, wiring, fan, light installation.", rating: 4.6, locations: ["All"], isVerified:true },
+  { id: 12, name: "Wiring & Rewiring Technician", category: "Electrical Technicians", subtype: "Wiring & Rewiring Technician", description: "House wiring, short circuit fix, load balancing.", rating: 4.5, locations: ["Delhi","Mumbai"] },
+  { id: 13, name: "Inverter Technician", category: "Electrical Technicians", subtype: "Inverter Technician", description: "Battery change, inverter repair & servicing.", rating: 4.4, locations: ["Bangalore","Chennai"] },
+  { id: 14, name: "Stabilizer Technician", category: "Electrical Technicians", subtype: "Stabilizer Technician", description: "Voltage issues, PCB repair.", rating: 4.2, locations: ["Pune"] },
+  { id: 15, name: "Switchboard Technician", category: "Electrical Technicians", subtype: "Switchboard Technician", description: "Switch/MCB installation, burnt board repair.", rating: 4.1, locations: ["All"] },
+  { id: 16, name: "Solar Panel Technician", category: "Electrical Technicians", subtype: "Solar Panel Technician", description: "Solar installation, cleaning, inverter repair.", rating: 4.3, locations: ["Rajasthan","Gujarat"] },
+  { id: 17, name: "Generator Technician", category: "Electrical Technicians", subtype: "Generator Technician", description: "DG servicing, oil change, noise issue fixing.", rating: 4.0, locations: ["All"] },
+  { id: 18, name: "LED Panel Light Technician", category: "Electrical Technicians", subtype: "LED Panel Light Technician", description: "LED fittings, driver replacement.", rating: 4.1, locations: ["Hyderabad"] },
+  { id: 19, name: "CCTV Power Technician", category: "Electrical Technicians", subtype: "CCTV Power Technician", description: "Power supply fix, adapter change.", rating: 4.0, locations: ["All"] },
+  { id: 20, name: "UPS Technician", category: "Electrical Technicians", subtype: "UPS Technician", description: "UPS battery replacement & repair.", rating: 4.1, locations: ["Mumbai","Pune"] },
+
+  // ELECTRONICS (21-30)
+  { id: 21, name: "TV Repair Technician", category: "Electronics Repair Technicians", subtype: "TV Repair Technician", description: "Display, sound, motherboard repair.", rating: 4.2, locations: ["All"] },
+  { id: 22, name: "Laptop Technician", category: "Electronics Repair Technicians", subtype: "Laptop Technician", description: "OS, keyboard, screen, motherboard fix.", rating: 4.3, locations: ["Bangalore","Hyderabad"] },
+  { id: 23, name: "Desktop Technician", category: "Electronics Repair Technicians", subtype: "Desktop Technician", description: "CPU assembly, repair, cleaning.", rating: 4.0, locations: ["All"] },
+  { id: 24, name: "Printer Technician", category: "Electronics Repair Technicians", subtype: "Printer Technician", description: "Inkjet/laser repair, cartridge cleaning.", rating: 4.0, locations: ["Chennai"] },
+  { id: 25, name: "Projector Technician", category: "Electronics Repair Technicians", subtype: "Projector Technician", description: "Lens, lamp, display repair.", rating: 4.1, locations: ["Mumbai"] },
+  { id: 26, name: "Mobile Technician", category: "Electronics Repair Technicians", subtype: "Mobile Technician", description: "Screen, battery, charging repair.", rating: 4.4, locations: ["All"] },
+  { id: 27, name: "Speaker Technician", category: "Electronics Repair Technicians", subtype: "Speaker Technician", description: "Home speakers, soundbar, amplifier repair.", rating: 4.0, locations: ["Bangalore"] },
+  { id: 28, name: "CCTV Technician", category: "Electronics Repair Technicians", subtype: "CCTV Technician", description: "Installation, repair, network setup.", rating: 4.2, locations: ["All"] },
+  { id: 29, name: "Biometrics Technician", category: "Electronics Repair Technicians", subtype: "Biometrics Technician", description: "Attendance machine setup & repair.", rating: 4.1, locations: ["Pune","Mumbai"] },
+  { id: 30, name: "Gaming Console Technician", category: "Electronics Repair Technicians", subtype: "Gaming Console Technician", description: "PS/Xbox repair, HDMI/SSD fix.", rating: 4.0, locations: ["Bangalore"] },
+
+  // PLUMBING (31-40)
+  { id: 31, name: "Plumber Technician", category: "Plumbing & Water System Technicians", subtype: "Plumber Technician", description: "Leakage, fitting, tap, pipeline repair.", rating: 4.5, locations: ["All"], isVerified:true },
+  { id: 32, name: "Water Motor Technician", category: "Plumbing & Water System Technicians", subtype: "Water Motor Technician", description: "Water pump repair & installation.", rating: 4.0, locations: ["Rural","Semi-Urban"] },
+  { id: 33, name: "Borewell Technician", category: "Plumbing & Water System Technicians", subtype: "Borewell Technician", description: "Borewell repair, motor fitting.", rating: 4.1, locations: ["Rural"] },
+  { id: 34, name: "Water Tank Cleaning", category: "Plumbing & Water System Technicians", subtype: "Water Tank Cleaning", description: "Manual/chemical cleaning.", rating: 4.0, locations: ["All"] },
+  { id: 35, name: "Pipeline Leakage Technician", category: "Plumbing & Water System Technicians", subtype: "Pipeline Leakage Technician", description: "Leak detection & repair.", rating: 4.2, locations: ["All"] },
+  { id: 36, name: "Bathroom Fitting Technician", category: "Plumbing & Water System Technicians", subtype: "Bathroom Fitting Technician", description: "Shower, taps, basin, fittings.", rating: 4.1, locations: ["All"] },
+  { id: 37, name: "Water Softener Technician", category: "Plumbing & Water System Technicians", subtype: "Water Softener Technician", description: "Installation & servicing.", rating: 4.0, locations: ["Urban"] },
+  { id: 38, name: "Drainage Technician", category: "Plumbing & Water System Technicians", subtype: "Drainage Technician", description: "Blockage clearing.", rating: 4.0, locations: ["All"] },
+  { id: 39, name: "Kitchen Sink Technician", category: "Plumbing & Water System Technicians", subtype: "Kitchen Sink Technician", description: "Sink fitting, pipe replacement.", rating: 4.1, locations: ["All"] },
+  { id: 40, name: "Shower/Tap Technician", category: "Plumbing & Water System Technicians", subtype: "Shower/Tap Technician", description: "Shower repair, tap installation.", rating: 4.0, locations: ["All"] },
+
+  // FURNITURE (41-50)
+  { id: 41, name: "Carpenter Technician", category: "Furniture & Woodwork Technicians", subtype: "Carpenter Technician", description: "All types of wood works.", rating: 4.2, locations: ["All"] },
+  { id: 42, name: "Modular Kitchen Technician", category: "Furniture & Woodwork Technicians", subtype: "Modular Kitchen Technician", description: "Cabinet fitting, repair, design.", rating: 4.3, locations: ["Urban"] },
+  { id: 43, name: "Sofa Repair Technician", category: "Furniture & Woodwork Technicians", subtype: "Sofa Repair Technician", description: "Fabric change, cushion repair.", rating: 4.0, locations: ["All"] },
+  { id: 44, name: "Door Installation Technician", category: "Furniture & Woodwork Technicians", subtype: "Door Installation Technician", description: "Door fitting & lock installation.", rating: 4.1, locations: ["All"] },
+  { id: 45, name: "Sofa Repair Technician", category: "Furniture & Woodwork Technicians", subtype: "Sofa Repair Technician", description: "Fabric change, cushion repair.", rating: 4.0, locations: ["All"] },
+  { id: 46, name: "Cupboard Technician", category: "Furniture & Woodwork Technicians", subtype: "Cupboard Technician", description: "Wardrobe repair & hinge fix.", rating: 4.0, locations: ["All"] },
+  { id: 47, name: "Bed Repair Technician", category: "Furniture & Woodwork Technicians", subtype: "Bed Repair Technician", description: "Bed frame & hinge repair.", rating: 4.0, locations: ["All"] },
+  { id: 48, name: "Wooden Flooring Technician", category: "Furniture & Woodwork Technicians", subtype: "Wooden Flooring Technician", description: "Installation & polishing.", rating: 4.2, locations: ["Urban"] },
+  { id: 49, name: "Partition Woodwork", category: "Furniture & Woodwork Technicians", subtype: "Partition Woodwork", description: "Office/home partitions.", rating: 4.1, locations: ["All"] },
+  { id: 50, name: "Window Frame Technician", category: "Furniture & Woodwork Technicians", subtype: "Window Frame Technician", description: "Window repair.", rating: 4.0, locations: ["All"] },
+];
+
+const CATEGORIES = Array.from(new Set(TECH_LIST.map((t) => t.category)));
+
+export default function SmartServiceFinderFull(): JSX.Element {
+  const [searchText, setSearchText] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | "">("");
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const [selectedSubtype, setSelectedSubtype] = useState<string | "">("");
+  const [minRating, setMinRating] = useState<number>(0);
+  const [locationFilter, setLocationFilter] = useState<string>("");
+  const [bestOnly, setBestOnly] = useState(false);
+  const [voiceListening, setVoiceListening] = useState(false);
+  const [detectedProblem, setDetectedProblem] = useState<string>("");
+  const recognitionRef = useRef<any>(null);
+
+  // initialize speech recognition (client-only)
+  useEffect(() => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+    const recog = new SpeechRecognition();
+    recog.lang = "en-IN";
+    recog.interimResults = false;
+    recog.maxAlternatives = 1;
+
+    recog.onresult = (e: any) => {
+      const text = e.results[0][0].transcript;
+      // try to extract keywords for category/subtype/location
+      handleVoiceText(text);
+      setVoiceListening(false);
+    };
+    recog.onend = () => setVoiceListening(false);
+    recog.onerror = () => setVoiceListening(false);
+    recognitionRef.current = recog;
+  }, []);
+
+  function startVoice() {
+    if (!recognitionRef.current) {
+      alert("Voice recognition not supported in this browser.");
+      return;
+    }
+    setVoiceListening(true);
+    recognitionRef.current.start();
+  }
+
+  function handleVoiceText(text: string) {
+    const lower = text.toLowerCase();
+    setSearchText(text);
+    // detect possible location words from a small list (expand as needed)
+    const cities = ["mumbai","delhi","bangalore","chennai","hyderabad","pune","kolkata","ahmedabad","noida","gurgaon","jaipur","lucknow"];
+    const foundCity = cities.find(c => lower.includes(c));
+    if (foundCity) setLocationFilter(capitalize(foundCity));
+
+    // detect categories and subtypes by keywords
+    if (lower.includes("ac")) {
+      setSelectedCategory("Home Appliance Technicians");
+      setSelectedSubtype("AC Technician");
+      setDetectedProblem("AC issue");
+    } else if (lower.includes("plumb") || lower.includes("leak")) {
+      setSelectedCategory("Plumbing & Water System Technicians");
+      setSelectedSubtype("Plumber Technician");
+      setDetectedProblem("Plumbing issue");
+    } else if (lower.includes("electric") || lower.includes("wiring") || lower.includes("inverter") || lower.includes("stabilizer")) {
+      setSelectedCategory("Electrical Technicians");
+      // pick subtype heuristically
+      if (lower.includes("wiring") || lower.includes("rewire")) setSelectedSubtype("Wiring & Rewiring Technician");
+      else if (lower.includes("inverter")) setSelectedSubtype("Inverter Technician");
+      else if (lower.includes("stabilizer")) setSelectedSubtype("Stabilizer Technician");
+      else setSelectedSubtype("Electrician (General)");
+      setDetectedProblem("Electrical issue");
+    } else if (lower.includes("washing")) {
+      setSelectedCategory("Home Appliance Technicians");
+      setSelectedSubtype("Washing Machine Technician");
+      setDetectedProblem("Washing machine issue");
+    } else {
+      // fallback: try to match by words in description or names
+      setDetectedProblem(text);
+    }
+  }
+
+  function capitalize(s: string) {
+    if (!s) return s;
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  // derive subtypes for selected category
+  const subtypesForCategory = useMemo(() => {
+    if (!selectedCategory) return Array.from(new Set(TECH_LIST.map(t => t.subtype)));
+    return Array.from(new Set(TECH_LIST.filter(t => t.category === selectedCategory).map(t => t.subtype)));
+  }, [selectedCategory]);
+
+  // apply filters and produce ordered list
+  const filtered = useMemo(() => {
+    let arr = TECH_LIST.slice();
+
+    if (searchText.trim()) {
+      const q = searchText.toLowerCase();
+      arr = arr.filter(t => (t.name + " " + t.description + " " + t.subtype).toLowerCase().includes(q));
+    }
+
+    if (selectedCategory) {
+      arr = arr.filter(t => t.category === selectedCategory);
+    }
+
+    if (selectedSubtype) {
+      arr = arr.filter(t => t.subtype === selectedSubtype);
+    }
+
+    if (minRating > 0) {
+      arr = arr.filter(t => t.rating >= minRating);
+    }
+
+    if (locationFilter.trim()) {
+      const lf = locationFilter.toLowerCase();
+      arr = arr.filter(t => t.locations.some(loc => loc.toLowerCase().includes(lf) || loc.toLowerCase() === "all"));
+    }
+
+    // Best choice: rank by rating + location match
+    arr = arr.map(t => {
+      const locationScore = (locationFilter && t.locations.some(loc => loc.toLowerCase().includes(locationFilter.toLowerCase()))) ? 1 : 0;
+      const score = t.rating * 2 + locationScore * 2; // heuristic
+      return { tech: t, score };
+    }).sort((a,b) => b.score - a.score).map(x => x.tech);
+
+    if (bestOnly) {
+      // show top 1-3 best choices
+      return arr.slice(0, 3);
+    }
+
+    return arr;
+  }, [searchText, selectedCategory, selectedSubtype, minRating, locationFilter, bestOnly]);
+
+  // toggle category open
+  function toggleOpenCategory(cat: string) {
+    setOpenCategory(prev => prev === cat ? null : cat);
+  }
+
+  // UI helpers
+  function clearFilters() {
+    setSearchText("");
+    setSelectedCategory("");
+    setSelectedSubtype("");
+    setMinRating(0);
+    setLocationFilter("");
+    setBestOnly(false);
+  }
+
+  // mark the single top result as best (for UI badge)
+  const bestTech = filtered.length > 0 ? filtered[0] : null;
+
+  return (
+    <div className="max-w-7xl mx-auto p-4">
+      <div className="bg-white/70 backdrop-blur rounded-2xl p-6 shadow">
+        <div className="flex flex-col md:flex-row md:items-center md:gap-4">
+          <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
+            <Search className="text-gray-500" />
+            <input
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              placeholder="Search services, e.g. 'AC not cooling' or 'wiring problem'..."
+              className="bg-transparent flex-1 outline-none text-sm"
+            />
+            <button onClick={startVoice} className={`ml-2 p-2 rounded-md ${voiceListening ? "bg-red-500 text-white" : "bg-white"}`}>
+              <Mic size={16} />
+            </button>
+          </div>
+
+          <div className="mt-3 md:mt-0 flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border">
+              <MapPin className="text-gray-600" />
+              <input value={locationFilter} onChange={e => setLocationFilter(e.target.value)} placeholder="Location (city/area)" className="outline-none text-sm" />
+            </div>
+
+            <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border">
+              <Filter />
+              <select value={minRating} onChange={e => setMinRating(Number(e.target.value))} className="text-sm outline-none bg-transparent">
+                <option value={0}>Any rating</option>
+                <option value={4}>4★ & up</option>
+                <option value={4.5}>4.5★ & up</option>
+              </select>
+            </div>
+
+            <button onClick={() => setBestOnly(b => !b)} className={`px-3 py-2 rounded-lg border ${bestOnly ? "bg-indigo-600 text-white" : "bg-white"}`}>
+              <Star className="inline-block mr-1" /> Best
+            </button>
+
+            <button onClick={clearFilters} className="px-3 py-2 rounded-lg border bg-white text-sm">Clear</button>
+          </div>
+        </div>
+
+        {/* Categories list with expand */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {CATEGORIES.map(cat => (
+            <div key={cat} className="bg-white/60 p-3 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <div className="font-semibold">{cat}</div>
+                <button onClick={() => { setSelectedCategory(cat); toggleOpenCategory(cat); }}>
+                  {openCategory === cat ? <ChevronUp /> : <ChevronDown />}
+                </button>
+              </div>
+
+              {/* show subtypes when clicked */}
+              {openCategory === cat && (
+                <div className="mt-3 space-y-2">
+                  {Array.from(new Set(TECH_LIST.filter(t => t.category === cat).map(t => t.subtype))).map(sub => (
+                    <button key={sub} onClick={() => { setSelectedSubtype(sub); setSelectedCategory(cat); }} className={`w-full text-left p-2 rounded ${selectedSubtype === sub ? "bg-indigo-50 border" : "hover:bg-gray-50"}`}>
+                      <div className="font-medium">{sub}</div>
+                      <div className="text-xs text-gray-500">{TECH_LIST.find(t => t.subtype === sub && t.category === cat)?.description}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Selected filters summary */}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          {selectedCategory && <div className="px-3 py-1 bg-indigo-50 rounded-full text-sm">{selectedCategory}</div>}
+          {selectedSubtype && <div className="px-3 py-1 bg-indigo-50 rounded-full text-sm">{selectedSubtype}</div>}
+          {locationFilter && <div className="px-3 py-1 bg-indigo-50 rounded-full text-sm">Location: {locationFilter}</div>}
+          {minRating > 0 && <div className="px-3 py-1 bg-indigo-50 rounded-full text-sm">Rating ≥ {minRating}</div>}
+          {detectedProblem && <div className="px-3 py-1 bg-amber-50 rounded-full text-sm">Detected: {detectedProblem}</div>}
+        </div>
+
+        {/* Results & Filters */}
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left: filters & sort */}
+          <aside className="lg:col-span-1 bg-white/60 p-4 rounded-lg border">
+            <h4 className="font-semibold mb-3">Filters</h4>
+            <label className="block text-sm mb-2">Category</label>
+            <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)} className="w-full p-2 border rounded mb-3">
+              <option value="">All categories</option>
+              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+
+            <label className="block text-sm mb-2">Subtype</label>
+            <select value={selectedSubtype} onChange={e => setSelectedSubtype(e.target.value)} className="w-full p-2 border rounded mb-3">
+              <option value="">All subtypes</option>
+              {subtypesForCategory.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+
+            <label className="block text-sm mb-2">Minimum rating</label>
+            <input type="range" min={0} max={5} step={0.5} value={minRating} onChange={e => setMinRating(Number(e.target.value))} />
+            <div className="text-sm mt-2">Current: {minRating}★</div>
+
+            <div className="mt-4">
+              <button onClick={() => setBestOnly(b => !b)} className={`w-full p-2 rounded ${bestOnly ? "bg-indigo-600 text-white" : "bg-white border"}`}>{bestOnly ? "Showing Best" : "Show Best Only"}</button>
+            </div>
+          </aside>
+
+          {/* Middle: results list */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Technicians ({filtered.length})</h3>
+              <div className="text-sm text-gray-600">Top match: {bestTech ? bestTech.name : "—"}</div>
+            </div>
+
+            <div className="space-y-3">
+              {filtered.length === 0 && <div className="p-4 bg-white/60 rounded text-center text-gray-600">No technicians match your filters.</div>}
+
+              {filtered.map((t) => (
+                <TechCard key={t.id} tech={t} highlight={bestTech?.id === t.id} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Tech card with expand */
+function TechCard({ tech, highlight }: { tech: Tech; highlight?: boolean }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className={`p-4 bg-white/60 border rounded-lg ${highlight ? "ring-2 ring-indigo-300" : ""}`}>
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold">{tech.name.split(" ").slice(0,2).map(s=>s[0]).join("")}</div>
+
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-semibold">{tech.name}</div>
+              <div className="text-sm text-gray-600">{tech.subtype} • <span className="text-xs">{tech.category}</span></div>
+            </div>
+
+            <div className="text-right">
+              <div className="flex items-center gap-1 justify-end">
+                <Star className="text-yellow-500" />
+                <span className="font-semibold">{tech.rating.toFixed(1)}</span>
+              </div>
+              {tech.isVerified && <div className="text-xs text-green-600 mt-1">Verified</div>}
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-700 mt-2">{tech.description}</p>
+
+          <div className="mt-3 flex items-center gap-3">
+            <button onClick={() => setOpen(o=>!o)} className="text-sm px-3 py-2 rounded bg-white border">{open ? "Hide" : "View"}</button>
+            <button onClick={() => alert(`Booking request sent to ${tech.name}`)} className="text-sm px-3 py-2 rounded bg-indigo-600 text-white">Book</button>
+            <button onClick={() => alert(`Contacting ${tech.name}`)} className="text-sm px-3 py-2 rounded border">Contact</button>
+          </div>
+
+          {open && (
+            <div className="mt-3 p-3 bg-gray-50 rounded">
+              <div className="text-sm text-gray-700"><strong>Service Areas:</strong> {tech.locations.join(", ")}</div>
+              <div className="text-sm text-gray-700 mt-2"><strong>Details:</strong> {tech.description}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

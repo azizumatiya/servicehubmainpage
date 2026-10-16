@@ -1,0 +1,42 @@
+import mongoose, { Schema, Document } from "mongoose";
+
+export interface ICustomer extends Document {
+  fullName: string;
+  email: string;
+  phone?: string;
+  password: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const CustomerSchema = new Schema<ICustomer>(
+  {
+    fullName: {
+      type: String,
+      required: [true, "Full name is required"],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      trim: true,
+      lowercase: true,
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email"],
+    },
+    phone: {
+      type: String,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [8, "Password must be at least 8 characters"],
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export default mongoose.models.Customer || mongoose.model<ICustomer>("Customer", CustomerSchema);

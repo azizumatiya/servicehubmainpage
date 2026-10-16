@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMINTORY - Orders Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<style>
+    /* ગ્લોબલ રીસેટ અને ફોન્ટ્સ */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-blue: #3A47F5;
+    --dark-blue: #232d66;
+    --light-grey: #f4f5f9;
+    --text-dark: #333;
+    --text-light: #888;
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--light-grey);
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+/* 💠 લેઆઉટ કન્ટેનર */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* 🟦 સાઇડબાર સ્ટાઇલિંગ */
+.sidebar {
+    width: 250px;
+    background-color: var(--dark-blue);
+    color: white;
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    height: 100%;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 0 20px;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #c0c4d7;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+    position: relative;
+}
+
+.nav-item i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+}
+
+.nav-item:hover {
+    color: white;
+    background-color: #3b427b;
+}
+
+.nav-item.active {
+    background-color: var(--primary-blue);
+    color: white;
+    border-right: 4px solid white; /* એક્ટિવ સ્ટેટ માટે */
+}
+
+.submenu {
+    display: none;
+    flex-direction: column;
+    background-color: #1a224a;
+    padding-left: 55px;
+}
+
+.submenu-arrow {
+    margin-left: auto;
+    font-size: 10px;
+}
+
+.active-submenu {
+    display: flex;
+}
+
+.sub-item {
+    padding: 8px 0;
+    color: #c0c4d7;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.sub-item:hover {
+    color: white;
+}
+
+.sub-item i {
+    font-size: 10px;
+    margin-right: 8px;
+}
+
+/* 🟨 મુખ્ય કન્ટેન્ટ સ્ટાઇલિંગ */
+.main-content {
+    margin-left: 250px; /* સાઇડબાર જેટલી જગ્યા */
+    flex-grow: 1;
+    padding: 0 30px 30px 30px;
+}
+
+/* હેડર સ્ટાઇલિંગ */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.main-header h2 {
+    font-size: 18px;
+    color: var(--text-light);
+    font-weight: 400;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.create-new-btn {
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.create-new-btn:hover {
+    background-color: #303deb;
+}
+
+.notification-icon {
+    font-size: 18px;
+    color: var(--text-light);
+    cursor: pointer;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ccc;
+}
+
+/* ઓર્ડર સેક્શન */
+.orders-section h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* સર્ચ અને ફિલ્ટર બાર */
+.filter-bar {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+.search-group, .select-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-bar label {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.filter-bar input, .filter-bar select {
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 250px;
+    min-width: 150px;
+    background-color: white;
+}
+
+.search-btn {
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: background-color 0.2s;
+}
+
+.search-btn:hover {
+    background-color: #303deb;
+}
+
+/* પ્રોડક્ટ સમરી ટેબલ સ્ટાઇલિંગ */
+.product-summary {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.summary-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.summary-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.show-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.show-group select {
+    padding: 5px 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 13px;
+    min-width: unset;
+    width: auto;
+}
+
+.dispatch-btn {
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+}
+
+.dispatch-btn:hover {
+    background-color: #e68900;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-dark);
+}
+
+.pagination span {
+    padding: 5px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.pagination span:hover {
+    background-color: #eee;
+}
+
+.pagination span:nth-child(2) { /* પ્રથમ પેજ (1) ને હાઇલાઇટ કરો */
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.pagination i {
+    cursor: pointer;
+    font-size: 12px;
+}
+
+
+/* ટેબલ સ્ટાઇલિંગ */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
+}
+
+.orders-table th {
+    background-color: var(--light-grey);
+    color: var(--text-dark);
+    font-weight: 600;
+    padding: 12px 15px;
+    text-transform: uppercase;
+    font-size: 12px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.orders-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    color: var(--text-dark);
+    font-weight: 400;
+}
+
+.orders-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.orders-table td:first-child {
+    padding-left: 15px;
+}
+
+/* રેકોર્ડ ટાઇપ બેજ */
+.record-credit {
+    color: green;
+    font-weight: 600;
+}
+
+.record-debit {
+    color: red;
+    font-weight: 600;
+}
+
+/* એક્શન બટન */
+.action-buttons button {
+    background: none;
+    border: none;
+    color: var(--primary-blue);
+    cursor: pointer;
+    margin-right: 5px;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.action-buttons button:hover {
+    color: #303deb;
+}
+
+.action-buttons .delete-btn {
+    color: red;
+}
+</style>
+<body>
+
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+            <div class="logo">ADMINTORY</div>
+            <nav class="nav-links">
+                <a href="#" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="#" class="nav-item"><i class="fas fa-file-alt"></i> Content</a>
+                <a href="#" class="nav-item has-submenu">
+                    <i class="fas fa-users"></i> Customers <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <a href="#" class="nav-item active"><i class="fas fa-shopping-cart"></i> Orders</a>
+                <div class="submenu active-submenu">
+                    <a href="#" class="sub-item"><i class="fas fa-plus"></i> Create Order</a>
+                    <a href="#" class="sub-item"><i class="fas fa-truck"></i> Dispatch Order</a>
+                    <a href="#" class="sub-item"><i class="fas fa-file-invoice"></i> Build Invoice</a>
+                    <a href="#" class="sub-item"><i class="fas fa-comment-dots"></i> Checkout Feedback</a>
+                    <a href="#" class="sub-item"><i class="fas fa-search"></i> Search by Content</a>
+                </div>
+                <a href="#" class="nav-item"><i class="fas fa-shipping-fast"></i> Shipping</a>
+                <a href="#" class="nav-item"><i class="fas fa-box"></i> Product</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h2>Dashboards > Orders</h2>
+                <div class="header-actions">
+                    <button class="create-new-btn">CREATE NEW</button>
+                    <i class="fas fa-bell notification-icon"></i>
+                    <div class="user-profile">
+                        <span class="user-name">Ahmed Ishq Khan</span>
+                        <img src="placeholder-user-avatar.jpg" alt="User Avatar" class="user-avatar">
+                    </div>
+                </div>
+            </header>
+
+            <section class="orders-section">
+                <h1>Orders</h1>
+
+                <div class="filter-bar">
+                    <div class="search-group">
+                        <label>What are you looking for?</label>
+                        <input type="text" placeholder="Search for category, name, company, etc">
+                    </div>
+                    <div class="select-group">
+                        <label>Category</label>
+                        <select>
+                            <option>All</option>
+                        </select>
+                    </div>
+                    <div class="select-group">
+                        <label>Status</label>
+                        <select>
+                            <option>All</option>
+                        </select>
+                    </div>
+                    <button class="search-btn">SEARCH</button>
+                </div>
+
+                <div class="product-summary">
+                    <div class="summary-header">
+                        <h2>Product Summary</h2>
+                        <div class="summary-controls">
+                            <div class="show-group">
+                                <span>Show</span>
+                                <select><option>ALL COLUMN</option></select>
+                            </div>
+                            <button class="dispatch-btn">DISPATCH SELECTED</button>
+                            <div class="pagination">
+                                <i class="fas fa-chevron-left"></i>
+                                <span>1</span>
+                                <span>2</span>
+                                <span>3</span>
+                                <span>...</span>
+                                <span>10</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAll"></th>
+                                    <th>DATE</th>
+                                    <th>NAME</th>
+                                    <th>PAYMENT METHOD</th>
+                                    <th>QTY</th>
+                                    <th>PRICE (AMOUNT)</th>
+                                    <th>TOTAL</th>
+                                    <th>RECORD TYPE</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    // 🗄️ નમૂના ઓર્ડર ડેટા (Sample Order Data) - તમારી જરૂરિયાત મુજબ
+    const orders = [
+        {
+            date: "22 Jan 2024",
+            name: "Ahmed Khan",
+            paymentMethod: "Visa Card",
+            qty: 2,
+            price: 50.00,
+            total: 100.00,
+            recordType: "Credit",
+        },
+        {
+            date: "23 Jan 2024",
+            name: "Priya Patel",
+            paymentMethod: "Cash on Delivery",
+            qty: 1,
+            price: 75.50,
+            total: 75.50,
+            recordType: "Debit",
+        },
+        {
+            date: "24 Jan 2024",
+            name: "Sanjay Shah",
+            paymentMethod: "UPI",
+            qty: 3,
+            price: 25.00,
+            total: 75.00,
+            recordType: "Credit",
+        },
+        {
+            date: "25 Jan 2024",
+            name: "Mona Desai",
+            paymentMethod: "Net Banking",
+            qty: 5,
+            price: 10.99,
+            total: 54.95,
+            recordType: "Credit",
+        },
+        {
+            date: "26 Jan 2024",
+            name: "Vikram J.",
+            paymentMethod: "MasterCard",
+            qty: 1,
+            price: 120.00,
+            total: 120.00,
+            recordType: "Debit",
+        },
+        // વધુ ડેટા ઉમેરો...
+    ];
+
+    const tableBody = document.getElementById('ordersTableBody');
+
+    // ➡️ ડેટાને ટેબલમાં રેન્ડર કરવાનું ફંક્શન
+    function renderOrders() {
+        tableBody.innerHTML = ''; // જૂનો ડેટા સાફ કરો
+        
+        orders.forEach((order, index) => {
+            const row = document.createElement('tr');
+
+            // રેકોર્ડ ટાઇપ માટે કલર ક્લાસ નક્કી કરો
+            const recordClass = order.recordType === 'Credit' ? 'record-credit' : 'record-debit';
+
+            row.innerHTML = `
+                <td><input type="checkbox" data-index="${index}"></td>
+                <td>${order.date}</td>
+                <td>${order.name}</td>
+                <td>${order.paymentMethod}</td>
+                <td>${order.qty}</td>
+                <td>$${order.price.toFixed(2)}</td>
+                <td>$${order.total.toFixed(2)}</td>
+                <td class="${recordClass}">${order.recordType}</td>
+                <td class="action-buttons">
+                    <button class="action-edit" data-index="${index}"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="action-delete delete-btn" data-index="${index}"><i class="fas fa-trash-alt"></i> Delete</button>
+                    <button class="action-view" data-index="${index}"><i class="fas fa-eye"></i> View</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // 🚀 પ્રારંભિક રેન્ડર
+    renderOrders();
+
+
+    // 🖱️ ક્રિયાત્મકતા (Action Button Functionality - ફક્ત ઉદાહરણ)
+
+    tableBody.addEventListener('click', (event) => {
+        const target = event.target.closest('button');
+        if (!target) return; // જો બટન પર ક્લિક ન હોય તો
+
+        const index = target.getAttribute('data-index');
+        const orderData = orders[index];
+
+        if (target.classList.contains('action-edit')) {
+            alert(`Editing Order for: ${orderData.name}`);
+            // અહીં એડિટ ફોર્મ અથવા મોડલ ખોલવાનો કોડ આવશે.
+        } else if (target.classList.contains('action-delete')) {
+            if (confirm(`Are you sure you want to delete the order for ${orderData.name}?`)) {
+                // અહીં ડેટા ડીલીટ કરીને ટેબલ રી-રેન્ડર કરવાનો કોડ આવશે.
+                orders.splice(index, 1);
+                renderOrders();
+                alert('Order Deleted!');
+            }
+        } else if (target.classList.contains('action-view')) {
+            alert(`Viewing Order Details:\nName: ${orderData.name}\nTotal: $${orderData.total.toFixed(2)}\nType: ${orderData.recordType}`);
+            // અહીં વિગતવાર મોડલ ખોલવાનો કોડ આવશે.
+        }
+    });
+
+    // ⬇️ અન્ય ક્રિયાત્મકતા: સાઇડબાર સબમેનુ ટૉગલ (Toggle Sidebar Submenu)
+    const customerLink = document.querySelector('.nav-item.has-submenu');
+    const customerSubmenu = document.querySelector('.active-submenu');
+    const submenuArrow = customerLink.querySelector('.submenu-arrow');
+
+    customerLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        customerSubmenu.classList.toggle('active-submenu');
+        submenuArrow.classList.toggle('fa-chevron-down');
+        submenuArrow.classList.toggle('fa-chevron-up');
+    });
+
+    // 📦 "Select All" ચેકબોક્સની ક્રિયાત્મકતા
+    const selectAllCheckbox = document.getElementById('selectAll');
+    selectAllCheckbox.addEventListener('change', (e) => {
+        document.querySelectorAll('#ordersTableBody input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = e.target.checked;
+        });
+    });
+
+});
+</script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 Technician Service App Designs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            color: white;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .intro {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .intro p {
+            font-size: 1.1rem;
+            color: #555;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .designs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .design-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .design-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .design-header {
+            padding: 25px 25px 15px;
+            color: white;
+            position: relative;
+        }
+        
+        .design-number {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(255, 255, 255, 0.2);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .design-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .design-type {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .design-preview {
+            height: 200px;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .preview-content {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .preview-header {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+        
+        .preview-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .preview-body {
+            flex: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .preview-line {
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .design-features {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .design-features ul {
+            list-style-type: none;
+        }
+        
+        .design-features li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .design-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .design-features i {
+            color: #1a73e8;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .design-actions {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-preview {
+            background-color: #1a73e8;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .btn-preview:hover {
+            background-color: #0d62d9;
+        }
+        
+        .btn-code {
+            background-color: transparent;
+            color: #1a73e8;
+            border: 1px solid #1a73e8;
+            text-decoration: none;
+        }
+        
+        .btn-code:hover {
+            background-color: #f0f7ff;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            background-color: #1a237e;
+            color: white;
+            border-radius: 15px 15px 0 0;
+            margin-top: 30px;
+        }
+        
+        .footer-note {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 0.95rem;
+            opacity: 0.9;
+            line-height: 1.7;
+        }
+        
+        @media (max-width: 768px) {
+            .designs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>10 Technician Service App Designs</h1>
+            <p class="subtitle">A collection of unique UI/UX designs for technician service applications, each with different styles and approaches.</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <section class="intro">
+            <p>Each design below represents a different approach to building a technician service application. Click on "View Preview" to see a detailed mockup of each design concept, or "View Code" to examine the HTML, CSS, and JavaScript implementation.</p>
+        </section>
+        
+        <section class="designs-grid" id="designsContainer">
+            <!-- Design cards will be generated by JavaScript -->
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p class="footer-note">
+                <strong>Note:</strong> This is a demonstration of 10 different UI design concepts for technician service applications. Each design has its own unique style, color scheme, and layout approach. The actual implementation would include full functionality, backend integration, and responsive design optimizations.
+            </p>
+        </div>
+    </footer>
+    
+    <script>
+        // Design data
+        const designs = [
+            {
+                id: 1,
+                title: "ProTech Masters",
+                type: "Professional Corporate",
+                color: "#1a237e",
+                features: [
+                    "Dark professional theme",
+                    "Advanced dashboard analytics",
+                    "Team management system",
+                    "Invoice generation"
+                ]
+            },
+            {
+                id: 2,
+                title: "QuickFix Connect",
+                type: "Modern Minimalist",
+                color: "#00bcd4",
+                features: [
+                    "Clean minimalist interface",
+                    "Quick booking flow",
+                    "Real-time technician tracking",
+                    "Ratings & reviews"
+                ]
+            },
+            {
+                id: 3,
+                title: "HomeTech Solutions",
+                type: "Home Service Focused",
+                color: "#4caf50",
+                features: [
+                    "Home service specialization",
+                    "Service package offers",
+                    "Before/after photo gallery",
+                    "Emergency service button"
+                ]
+            },
+            {
+                id: 4,
+                title: "FieldForce Pro",
+                type: "Field Service Management",
+                color: "#ff9800",
+                features: [
+                    "Field technician optimized",
+                    "Route planning & scheduling",
+                    "Offline capability",
+                    "Inventory management"
+                ]
+            },
+            {
+                id: 5,
+                title: "FixIt Now",
+                type: "On-Demand Service",
+                color: "#e91e63",
+                features: [
+                    "Instant booking system",
+                    "Live technician chat",
+                    "Price estimation tool",
+                    "Service history tracking"
+                ]
+            },
+            {
+                id: 6,
+                title: "TechCare Plus",
+                type: "Healthcare Style",
+                color: "#3f51b5",
+                features: [
+                    "Healthcare-inspired design",
+                    "Appointment scheduling",
+                    "Service reminders",
+                    "Maintenance plans"
+                ]
+            },
+            {
+                id: 7,
+                title: "Industrial Tech",
+                type: "Industrial & Rugged",
+                color: "#795548",
+                features: [
+                    "Rugged industrial design",
+                    "Safety compliance tracking",
+                    "Equipment management",
+                    "Work order system"
+                ]
+            },
+            {
+                id: 8,
+                title: "SmartHome Tech",
+                type: "Smart Home Integration",
+                color: "#009688",
+                features: [
+                    "Smart home integration",
+                    "IoT device management",
+                    "Automated diagnostics",
+                    "Preventive maintenance"
+                ]
+            },
+            {
+                id: 9,
+                title: "Elite Technicians",
+                type: "Luxury Premium",
+                color: "#9c27b0",
+                features: [
+                    "Premium luxury interface",
+                    "VIP client portal",
+                    "Concierge service",
+                    "Priority scheduling"
+                ]
+            },
+            {
+                id: 10,
+                title: "Community Repair Hub",
+                type: "Community Collaborative",
+                color: "#f44336",
+                features: [
+                    "Community-focused design",
+                    "Skill sharing platform",
+                    "Local technician network",
+                    "Community workshops"
+                ]
+            }
+        ];
+        
+        // Function to create preview visualization
+        function createPreview(color) {
+            const previewId = `preview-${Math.random().toString(36).substr(2, 9)}`;
+            
+            return `
+                <div class="preview-content" style="border: 1px solid ${color}40; background-color: ${color}10;">
+                    <div class="preview-header" style="background-color: ${color}20;">
+                        <div class="preview-dot" style="background-color: #ff5f56;"></div>
+                        <div class="preview-dot" style="background-color: #ffbd2e;"></div>
+                        <div class="preview-dot" style="background-color: #27ca3f;"></div>
+                    </div>
+                    <div class="preview-body">
+                        <div class="preview-line" style="width: 70%; background-color: ${color}40;"></div>
+                        <div class="preview-line" style="width: 40%; background-color: ${color}30;"></div>
+                        <div class="preview-line" style="width: 60%; background-color: ${color}50; margin-top: 15px;"></div>
+                        <div class="preview-line" style="width: 50%; background-color: ${color}30;"></div>
+                        <div class="preview-line" style="width: 80%; background-color: ${color}40; margin-top: 15px;"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Function to render design cards
+        function renderDesignCards() {
+            const container = document.getElementById('designsContainer');
+            
+            designs.forEach(design => {
+                const card = document.createElement('div');
+                card.className = 'design-card';
+                
+                card.innerHTML = `
+                    <div class="design-header" style="background-color: ${design.color};">
+                        <div class="design-number">${design.id}</div>
+                        <h3 class="design-title">${design.title}</h3>
+                        <p class="design-type">${design.type}</p>
+                    </div>
+                    
+                    <div class="design-preview">
+                        ${createPreview(design.color)}
+                    </div>
+                    
+                    <div class="design-features">
+                        <ul>
+                            ${design.features.map(feature => `
+                                <li><i class="fas fa-check-circle"></i> ${feature}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="design-actions">
+                        <a href="#" class="btn btn-preview" onclick="viewDesignPreview(${design.id})">
+                            <i class="fas fa-eye"></i> View Preview
+                        </a>
+                        <a href="#" class="btn btn-code" onclick="viewDesignCode(${design.id})">
+                            <i class="fas fa-code"></i> View Code
+                        </a>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // Function to view design preview
+        function viewDesignPreview(designId) {
+            const design = designs.find(d => d.id === designId);
+            alert(`Opening preview for: ${design.title}\n\nThis would normally open a detailed mockup of the ${design.type} design. In a full implementation, this would show a complete interactive prototype.`);
+            
+            // In a real implementation, this would navigate to a detailed preview page
+            // window.location.href = `design-preview-${designId}.html`;
+        }
+        
+        // Function to view design code
+        function viewDesignCode(designId) {
+            const design = designs.find(d => d.id === designId);
+            alert(`Displaying code for: ${design.title}\n\nThis would show the complete HTML, CSS, and JavaScript implementation for this ${design.type} design.`);
+            
+            // In a real implementation, this would show a code viewer or navigate to a code page
+            // window.location.href = `design-code-${designId}.html`;
+        }
+        
+        // Initialize the page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', renderDesignCards);
+    </script>
+</body>
+</html>

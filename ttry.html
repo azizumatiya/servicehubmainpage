@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ServicePro — Full Single-file App</title>
+<meta name="description" content="ServicePro demo — full single-file Home + User + Technician + Admin dashboards with localStorage." />
+<style>
+  :root{
+    --bg:#f5f8ff; --card:#ffffff; --accent:#0f6ef0; --muted:#6b7280; --success:#16a34a; --danger:#ef4444;
+    --glass: rgba(255,255,255,0.7); --radius:12px; --shadow: 0 10px 30px rgba(11,15,30,0.06);
+  }
+  *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial}
+  body{margin:0;background:linear-gradient(180deg,var(--bg),#eef6ff);color:#07102a;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .container{max-width:1200px;margin:18px auto;padding:16px}
+
+  /* Header */
+  header{display:flex;justify-content:space-between;align-items:center;padding:10px 0}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#1766ff);display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
+  nav{display:flex;gap:12px;align-items:center}
+  .navlink{padding:8px 10px;border-radius:8px;font-weight:700;cursor:pointer}
+  .btn{background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+  .btn-ghost{background:transparent;border:1px solid rgba(11,15,30,0.06);padding:8px;border-radius:8px}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:center;margin-top:8px}
+  .hero-card{background:var(--card);padding:20px;border-radius:14px;box-shadow:var(--shadow)}
+  h1{margin:0;font-size:28px}
+  .muted{color:var(--muted);font-size:14px}
+
+  /* grids */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+
+  /* provider card */
+  .provider{background:var(--card);padding:12px;border-radius:12px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center}
+  .provider .meta{display:flex;gap:12px;align-items:center}
+  .avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#ffd28a,#ff7aa2);display:flex;align-items:center;justify-content:center;font-weight:700}
+  .small{font-size:13px;color:var(--muted)}
+  .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(11,15,30,0.04);font-weight:700}
+
+  /* pages */
+  section{margin-top:16px}
+  .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:var(--shadow)}
+
+  /* layout for dashboards */
+  .dash{display:grid;grid-template-columns:260px 1fr;gap:14px}
+  .sidebar{background:linear-gradient(180deg,rgba(15,110,240,0.06),transparent);padding:12px;border-radius:12px;height:calc(100vh - 40px);position:sticky;top:20px}
+  .sidebar button{display:block;width:100%;text-align:left;padding:10px;border:0;background:transparent;border-radius:8px;cursor:pointer;font-weight:700;margin-bottom:6px}
+  .sidebar button.active{background:rgba(15,110,240,0.12);color:var(--accent)}
+
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;border-bottom:1px solid #eef2f7;text-align:left}
+  th{color:var(--muted);font-weight:800}
+
+  /* modals */
+  .modal-back{position:fixed;inset:0;background:rgba(2,6,23,0.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+  .modal{background:white;border-radius:12px;padding:18px;max-width:720px;width:100%;box-shadow:var(--shadow)}
+
+  /* responsive */
+  @media(max-width:980px){ .hero{grid-template-columns:1fr} .dash{grid-template-columns:1fr} .sidebar{position:relative;height:auto} }
+  @media(max-width:640px){ .grid{grid-template-columns:1fr} .logo{display:none} .brand div{font-size:16px} h1{font-size:22px} }
+</style>
+</head>
+<body>
+<div class="container" id="app">
+  <header>
+    <div class="brand">
+      <div class="logo">SP</div>
+      <div>
+        <div style="font-weight:900">ServicePro</div>
+        <div class="small">Trusted local professionals</div>
+      </div>
+    </div>
+    <nav id="topNav">
+      <div class="navlink" onclick="goto('home')">Home</div>
+      <div class="navlink" onclick="goto('services')">Services</div>
+      <div class="navlink" onclick="goto('providers')">Providers</div>
+      <button class="btn" id="loginBtn" onclick="openLogin()">Login / Signup</button>
+    </nav>
+  </header>
+
+  <!-- HOME -->
+  <main id="view-home">
+    <div class="hero">
+      <div class="hero-card">
+        <h1>Find & Book Trusted Local Professionals</h1>
+        <div class="muted" style="margin-top:8px">Plumbers, electricians, cleaners, AC repair & more — compare, chat and book.</div>
+
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <input id="qService" placeholder="What service? e.g. Plumber" style="flex:1;padding:10px;border-radius:10px;border:1px solid #eef2f7" />
+          <input id="qLocation" placeholder="City or pincode" style="width:160px;padding:10px;border-radius:10px;border:1px solid #eef2f7" />
+          <button class="btn" onclick="doSearch()">Search</button>
+        </div>
+
+        <div style="margin-top:16px" class="grid" id="homeFeatures">
+          <div class="card"><div style="font-weight:800">Verified Pros</div><div class="small">KYC & background checks</div></div>
+          <div class="card"><div style="font-weight:800">Secure Payments</div><div class="small">Wallet & refunds (demo)</div></div>
+          <div class="card"><div style="font-weight:800">Earn with us</div><div class="small">Provider dashboard & leads</div></div>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <h3 style="margin:0">Top Providers Near You</h3>
+        <div class="small muted" id="topUpdated">Updated just now</div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px" id="topProviders"></div>
+      </div>
+    </div>
+
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="sec-title" style="font-size:20px;font-weight:800">Popular Categories</div>
+        <div class="small muted">Browse services</div>
+      </div>
+      <div class="grid" id="categoriesList" style="margin-top:12px"></div>
+    </section>
+
+    <section style="margin-top:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:800">All Providers</div>
+        <div class="small muted">Sorted by rating</div>
+      </div>
+      <div class="grid" id="providersGrid" style="margin-top:12px"></div>
+    </section>
+  </main>
+
+  <!-- SERVICES -->
+  <main id="view-services" style="display:none">
+    <div class="card"><h2 style="margin:0">Services</h2><div class="small muted" style="margin-top:6px">All categories</div>
+      <div class="grid" id="servicesGrid" style="margin-top:12px"></div>
+    </div>
+  </main>
+
+  <!-- PROVIDER PROFILE -->
+  <main id="view-provider" style="display:none">
+    <div id="providerDetail"></div>
+  </main>
+
+  <!-- DASHBOARD (role-based) -->
+  <main id="view-dashboard" style="display:none">
+    <div class="dash">
+      <aside class="sidebar" id="dashMenu"></aside>
+      <div id="dashMain"></div>
+    </div>
+  </main>
+
+  <!-- ADMIN PANEL (separate full view) -->
+  <main id="view-admin" style="display:none">
+    <div class="card">
+      <h2 style="margin:0">Admin Console</h2>
+      <div class="small muted" style="margin-top:6px">KYC, Providers, Payouts, Categories</div>
+
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 320px;gap:12px">
+        <div class="card" id="adminMain"></div>
+        <div class="card">
+          <h4 style="margin:0">Quick Actions</h4>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+            <button class="btn" onclick="adminVerifyAll()">Verify All Pending</button>
+            <button class="btn-ghost" onclick="seedSample()">Seed Sample Data</button>
+            <button class="btn-ghost" onclick="exportData()">Export JSON</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true">
+  <div class="modal" id="modalBox">
+    <!-- dynamic content -->
+  </div>
+</div>
+
+<script>
+/* ===========================
+   Data layer (localStorage)
+   =========================== */
+const STORAGE_KEY = 'servicepro_full_v1';
+
+const defaultData = {
+  users: [
+    { id: 1, name: 'Ravi Sharma', phone: '9876543210', role: 'user', city:'Ahmedabad', wallet: 1500 },
+  ],
+  providers: [
+    { id: 101, name: 'Shree Plumbing', business: 'Shree Plumbing', services: ['Plumbing'], city:'Ahmedabad', rating:4.8, kyc:'verified', wallet:800, about:'10+ years experience' , reviews: [{user:'Ravi',rating:5, comment:'Great job!'}], messages:[] },
+    { id: 102, name: 'Amit Electricals', business: 'Amit Electricals', services: ['Electrician'], city:'Surat', rating:4.6, kyc:'pending', wallet:1200, about:'Certified electrician', reviews:[], messages:[] },
+  ],
+  leads: [
+    // sample: { id:501, userId:1, service:'Plumbing', city:'Ahmedabad', budget:500, status:'open', assignedTo:null, created:'2025-11-12' }
+  ],
+  payouts: [],
+  categories: ['Plumbing','Electrician','AC Repair','Home Cleaning','Carpenter'],
+  currentUser: null // { type:'user'/'provider'/'admin', id: <id> }
+};
+
+function loadData(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw){ localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData)); return JSON.parse(JSON.stringify(defaultData)); }
+  try{ return JSON.parse(raw); }catch(e){ localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData)); return JSON.parse(JSON.stringify(defaultData)); }
+}
+function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); }
+
+let DATA = loadData();
+
+/* ===========================
+   Utilities
+   =========================== */
+function $(id){ return document.getElementById(id); }
+function uid(prefix='id'){ return prefix + Math.floor(Math.random()*900000 + 1000); }
+function formatCurrency(n){ return '₹ ' + (+n).toLocaleString(); }
+function today(){ return new Date().toISOString().slice(0,10); }
+
+/* ===========================
+   Initial render
+   =========================== */
+function renderHome(){
+  // top providers
+  const top = DATA.providers.sort((a,b)=>b.rating - a.rating).slice(0,3);
+  $('topProviders').innerHTML = top.map(p=>`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:800">${p.name}</div>
+        <div class="small muted">${p.business} • ${p.city}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="small">★ ${p.rating}</div>
+        <div style="margin-top:8px"><button class="btn-ghost" onclick="openProvider(${p.id})">View</button></div>
+      </div>
+    </div>
+  `).join('');
+
+  // categories
+  $('categoriesList').innerHTML = DATA.categories.map(c=>`<div class="card"><div style="font-weight:800">${c}</div><div class="small muted">Popular tasks</div><div style="margin-top:8px"><button class="btn" onclick="searchCategory('${c}')">Find</button></div></div>`).join('');
+
+  // providers grid
+  $('providersGrid').innerHTML = DATA.providers.map(p=>`
+    <div class="provider">
+      <div class="meta">
+        <div class="avatar">${p.name.split(' ').map(s=>s[0]).slice(0,2).join('')}</div>
+        <div>
+          <div style="font-weight:800">${p.name}</div>
+          <div class="small muted">${p.business} • ${p.city}</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="small">★ ${p.rating}</div>
+        <div style="margin-top:8px"><button class="btn" onclick="openProvider(${p.id})">Book</button></div>
+      </div>
+    </div>
+  `).join('');
+
+  // services page
+  $('servicesGrid') && ( $('servicesGrid').innerHTML = DATA.categories.map(c=>`<div class="card"><div style="font-weight:800">${c}</div><div class="small muted">From ₹199</div><div style="margin-top:8px"><button class="btn-ghost" onclick="searchCategory('${c}')">Browse</button></div></div>`).join('') );
+}
+
+/* ===========================
+   Navigation & Search
+   =========================== */
+function goto(view){
+  // hide all main views
+  ['view-home','view-services','view-provider','view-dashboard','view-admin'].forEach(id=>{ if($(id)) $(id).style.display = 'none'; });
+  if(view==='home') $( 'view-home' ).style.display = 'block';
+  if(view==='services') $( 'view-services' ).style.display = 'block';
+  if(view==='providers') { $( 'view-home' ).style.display = 'block'; window.scrollTo({top:700, behavior:'smooth'}); }
+  if(view==='dashboard') { if(!DATA.currentUser){ alert('Please login first'); openLogin(); return; } renderDashboard(); $('view-dashboard').style.display='block'; }
+  if(view==='admin') { if(!DATA.currentUser || DATA.currentUser.type!=='admin'){ alert('Admin only'); openLogin(); return; } renderAdmin(); $('view-admin').style.display='block'; }
+  // scroll top
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function doSearch(){
+  const s = document.getElementById('qService').value.trim();
+  const l = document.getElementById('qLocation').value.trim();
+  if(!s && !l) return alert('Enter service or location');
+  // naive filter: show providers matching service or city
+  const results = DATA.providers.filter(p => (s && p.services.join(' ').toLowerCase().includes(s.toLowerCase())) || (l && p.city.toLowerCase().includes(l.toLowerCase())));
+  if(results.length===0) return alert('No providers found (demo)');
+  // show first result provider profile for demo
+  openProvider(results[0].id);
+}
+
+/* ===========================
+   Provider profile & booking
+   =========================== */
+function openProvider(id){
+  const p = DATA.providers.find(x=>x.id===id);
+  if(!p) return alert('Not found');
+  // render provider detail
+  const html = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <div class="avatar" style="width:76px;height:76px;font-size:20px">${p.name.split(' ').map(s=>s[0]).slice(0,2).join('')}</div>
+            <div>
+              <div style="font-size:20px;font-weight:800">${p.name}</div>
+              <div class="small muted">${p.business} • ${p.city}</div>
+              <div style="margin-top:6px" class="small">Rating: ★ ${p.rating} • KYC: <strong>${p.kyc}</strong></div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:800;font-size:18px">₹ 399</div>
+          <div class="small muted">Starting price</div>
+          <div style="margin-top:12px"><button class="btn" onclick="bookNow(${p.id})">Book Now</button></div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:12px">
+        <div style="flex:2">
+          <h4 style="margin:0">About</h4>
+          <div class="small muted" style="margin-top:6px">${p.about || 'No description'}</div>
+
+          <h4 style="margin-top:12px">Services</h4>
+          <ul>${p.services.map(s=>`<li>${s}</li>`).join('')}</ul>
+
+          <h4 style="margin-top:12px">Reviews</h4>
+          <div id="provReviews">${ p.reviews && p.reviews.length ? p.reviews.map(r=>`<div class="card" style="margin-top:8px"><div style="font-weight:700">${r.user}</div><div class="small muted">Rating: ${r.rating}</div><div style="margin-top:6px">${r.comment}</div></div>`).join('') : '<div class="small muted">No reviews yet</div>'}</div>
+        </div>
+        <div style="flex:1">
+          <div class="card">
+            <div style="font-weight:800">Contact & Actions</div>
+            <div style="margin-top:8px" class="small">Message / Call / Book</div>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn-ghost" onclick="openChat(${p.id})">Message</button>
+              <button class="btn-ghost" onclick="simulateCall()">Call</button>
+            </div>
+            <div style="margin-top:10px">
+              <button class="btn" onclick="bookNow(${p.id})">Book & Pay</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  $('providerDetail').innerHTML = html;
+  goto('provider');
+}
+
+/* Booking flow */
+function bookNow(providerId){
+  if(!DATA.currentUser || DATA.currentUser.type!=='user'){
+    if(confirm('You must login as User to book. Login now?')) openLogin();
+    return;
+  }
+  const provider = DATA.providers.find(p=>p.id===providerId);
+  const user = DATA.users.find(u=>u.id===DATA.currentUser.id);
+  // open modal form
+  showModal(`
+    <h3>Book: ${provider.name}</h3>
+    <div class="small muted">Service: ${provider.services[0] || 'Service'}</div>
+    <div style="margin-top:8px">
+      <label class="small">Preferred Date</label>
+      <input type="date" id="bk_date" value="${today()}" style="width:100%;padding:8px;margin-top:6px;border:1px solid #eef2f7;border-radius:8px" />
+    </div>
+    <div style="margin-top:8px">
+      <label class="small">Budget (₹)</label>
+      <input type="number" id="bk_amt" value="499" style="width:100%;padding:8px;margin-top:6px;border:1px solid #eef2f7;border-radius:8px" />
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn" onclick="confirmBooking(${providerId})">Confirm & Pay</button>
+    </div>
+  `);
+}
+function confirmBooking(providerId){
+  const date = document.getElementById('bk_date').value;
+  const amt = +document.getElementById('bk_amt').value;
+  closeModal();
+  const user = DATA.users.find(u=>u.id===DATA.currentUser.id);
+  const provider = DATA.providers.find(p=>p.id===providerId);
+
+  if(user.wallet < amt){
+    if(!confirm('Insufficient wallet balance. Top-up now?')) return;
+    const add = +prompt('Top-up amount (₹)', '1000');
+    if(add && add>0){ user.wallet += add; saveData(); alert('Wallet topped up'); }
+    else return;
+  }
+  // deduct & assign
+  user.wallet -= amt;
+  provider.wallet += amt;
+  const lead = { id: uid('L'), userId:user.id, service: provider.services[0]||'Service', city:provider.city, budget:amt, status:'assigned', assignedTo:provider.id, created: today() };
+  DATA.leads.push(lead);
+  saveData();
+  alert('Booked successfully. Lead id: ' + lead.id);
+  renderHome();
+}
+
+/* ===========================
+   Chat messaging (simulated)
+   =========================== */
+function openChat(providerId){
+  if(!DATA.currentUser){ if(confirm('Login to message provider?')) openLogin(); return; }
+  const p = DATA.providers.find(x=>x.id===providerId);
+  showModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:800">${p.name}</div>
+      <div class="small muted">Live chat (demo)</div>
+    </div>
+    <div id="chatThread" style="height:260px;overflow:auto;border:1px solid #eef2f7;padding:8px;border-radius:8px;margin-top:8px"></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <input id="chatText" placeholder="Type message" style="flex:1;padding:8px;border-radius:8px;border:1px solid #eef2f7" />
+      <button class="btn" onclick="sendChat(${providerId})">Send</button>
+    </div>
+  `);
+  renderChat(providerId);
+}
+function renderChat(providerId){
+  const thread = $('chatThread');
+  const p = DATA.providers.find(x=>x.id===providerId);
+  const messages = p.messages || [];
+  thread.innerHTML = messages.map(m=>`<div style="margin-bottom:8px"><div style="font-weight:700">${m.from}</div><div class="small muted">${m.text}</div><div class="small muted" style="margin-top:4px">${m.ts}</div></div>`).join('');
+  thread.scrollTop = thread.scrollHeight;
+}
+function sendChat(providerId){
+  const txt = $('chatText').value.trim();
+  if(!txt) return;
+  const p = DATA.providers.find(x=>x.id===providerId);
+  const from = DATA.currentUser ? (DATA.currentUser.type==='user' ? DATA.users.find(u=>u.id===DATA.currentUser.id).name : DATA.providers.find(pr=>pr.id===DATA.currentUser.id).name) : 'Guest';
+  p.messages = p.messages || [];
+  p.messages.push({ from, text: txt, ts: new Date().toLocaleString() });
+  saveData();
+  $('chatText').value='';
+  renderChat(providerId);
+}
+
+/* ===========================
+   Modal helpers
+   =========================== */
+function showModal(html){
+  $('modal').style.display = 'flex';
+  $('modalBox').innerHTML = html;
+}
+function closeModal(){ $('modal').style.display = 'none'; $('modalBox').innerHTML = ''; }
+
+/* ===========================
+   Auth (simple demo)
+   =========================== */
+function openLogin(){
+  showModal(`
+    <h3>Login / Signup</h3>
+    <div style="display:grid;gap:8px;margin-top:8px">
+      <select id="loginRole" style="padding:8px;border-radius:8px;border:1px solid #eef2f7">
+        <option value="user">User</option>
+        <option value="provider">Technician / Provider</option>
+        <option value="admin">Admin</option>
+      </select>
+      <input id="loginName" placeholder="Name" style="padding:8px;border-radius:8px;border:1px solid #eef2f7" />
+      <input id="loginCity" placeholder="City" style="padding:8px;border-radius:8px;border:1px solid #eef2f7" />
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn-ghost" onclick="closeModal()">Close</button>
+        <button class="btn" onclick="doLogin()">Continue</button>
+      </div>
+    </div>
+  `);
+}
+function doLogin(){
+  const role = $('loginRole').value;
+  const name = $('loginName').value.trim();
+  const city = $('loginCity').value.trim() || 'Unknown';
+  if(!name) return alert('Enter name');
+  if(role==='user'){
+    const id = Math.max(0, ...DATA.users.map(u=>u.id)) + 1;
+    const u = { id, name, phone:'', role:'user', city, wallet:500 };
+    DATA.users.push(u);
+    DATA.currentUser = { type:'user', id: id };
+  } else if(role==='provider'){
+    const id = Math.max(100, ...DATA.providers.map(p=>p.id)) + 1;
+    const p = { id, name, business: name + ' Services', services: [DATA.categories[0]], city, rating:4.5, kyc:'pending', wallet:0, about:'New provider', reviews: [], messages: [] };
+    DATA.providers.push(p);
+    DATA.currentUser = { type:'provider', id: id };
+  } else {
+    // admin
+    DATA.currentUser = { type:'admin', id: 0 };
+  }
+  saveData();
+  closeModal();
+  updateLoginUI();
+  if(DATA.currentUser.type==='admin') goto('admin'); else goto('dashboard');
+}
+
+/* ===========================
+   Dashboard rendering for roles
+   =========================== */
+function updateLoginUI(){
+  const btn = $('loginBtn');
+  if(DATA.currentUser){
+    if(DATA.currentUser.type==='user'){
+      const u = DATA.users.find(x=>x.id===DATA.currentUser.id);
+      btn.innerText = u.name + ' (User)';
+      btn.onclick = ()=>goto('dashboard');
+    } else if(DATA.currentUser.type==='provider'){
+      const p = DATA.providers.find(x=>x.id===DATA.currentUser.id);
+      btn.innerText = p.name + ' (Tech)';
+      btn.onclick = ()=>goto('dashboard');
+    } else {
+      btn.innerText = 'Admin';
+      btn.onclick = ()=>goto('admin');
+    }
+  } else {
+    btn.innerText = 'Login / Signup';
+    btn.onclick = openLogin;
+  }
+}
+
+function renderDashboard(){
+  $('view-home').style.display='none';
+  $('view-services').style.display='none';
+  $('view-provider').style.display='none';
+  $('view-admin').style.display='none';
+  $('view-dashboard').style.display='block';
+
+  const type = DATA.currentUser.type;
+  const sid = $('dashMenu'); sid.innerHTML = '';
+  const main = $('dashMain'); main.innerHTML = '';
+
+  if(type==='user'){
+    ['Overview','Requests','Bookings','Wallet','Profile'].forEach((tab,i)=>{
+      const btn = document.createElement('button'); btn.innerText = tab; btn.onclick = ()=>renderUserTab(tab.toLowerCase()); if(i===0) btn.classList.add('active'); sid.appendChild(btn);
+    });
+    renderUserTab('overview');
+  } else if(type==='provider'){
+    ['Overview','Leads','Jobs','Wallet','Profile'].forEach((tab,i)=>{
+      const btn = document.createElement('button'); btn.innerText = tab; btn.onclick = ()=>renderProviderTab(tab.toLowerCase()); if(i===0) btn.classList.add('active'); sid.appendChild(btn);
+    });
+    renderProviderTab('overview');
+  } else if(type==='admin'){
+    ['Overview','Providers','Customers','Leads','Payouts','Categories'].forEach((tab,i)=>{
+      const btn = document.createElement('button'); btn.innerText = tab; btn.onclick = ()=>renderAdminTab(tab.toLowerCase()); if(i===0) btn.classList.add('active'); sid.appendChild(btn);
+    });
+    renderAdminTab('overview');
+  }
+}
+
+function renderUserTab(tab){
+  const main = $('dashMain'); main.innerHTML = '';
+  const user = DATA.users.find(u=>u.id===DATA.currentUser.id);
+  if(tab==='overview'){
+    main.innerHTML = `<div class="card"><h3 style="margin:0">Welcome, ${user.name}</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
+        <div class="card"><div class="small">Wallet</div><div style="font-weight:800;margin-top:6px">${formatCurrency(user.wallet)}</div></div>
+        <div class="card"><div class="small">Your Requests</div><div style="font-weight:800;margin-top:6px">${DATA.leads.filter(l=>l.userId===user.id).length}</div></div>
+        <div class="card"><div class="small">Active Bookings</div><div style="font-weight:800;margin-top:6px">${DATA.leads.filter(l=>l.userId===user.id && l.status!=='completed').length}</div></div>
+      </div></div>`;
+  }
+  if(tab==='requests'){
+    const list = DATA.leads.filter(l=>l.userId===user.id).map(l=>`<tr><td>${l.id}</td><td>${l.service}</td><td>${l.city}</td><td>${l.status}</td><td>${l.assignedTo? DATA.providers.find(p=>p.id===l.assignedTo).name : '—'}</td></tr>`).join('');
+    main.innerHTML = `<div class="card"><h3>Your Requests</h3><div style="margin-top:8px"><table><thead><tr><th>ID</th><th>Service</th><th>City</th><th>Status</th><th>Provider</th></tr></thead><tbody>${list}</tbody></table></div></div>`;
+  }
+  if(tab==='bookings'){ renderUserTab('requests'); }
+  if(tab==='wallet'){
+    main.innerHTML = `<div class="card"><h3>Wallet</h3><div class="small" style="margin-top:8px">Balance: <strong>${formatCurrency(user.wallet)}</strong></div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn-ghost" onclick="userTopup()">Top-up</button>
+      </div></div>`;
+  }
+  if(tab==='profile'){
+    main.innerHTML = `<div class="card"><h3>Profile</h3>
+      <div style="margin-top:8px"><label class="small">Name</label><input id="u_name" value="${user.name}" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef2f7;margin-top:6px"/></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="saveUserProfile()">Save</button></div>
+    </div>`;
+  }
+}
+
+function renderProviderTab(tab){
+  const main = $('dashMain'); main.innerHTML = '';
+  const provider = DATA.providers.find(p=>p.id===DATA.currentUser.id);
+  if(tab==='overview'){
+    main.innerHTML = `<div class="card"><h3>${provider.name}</h3><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
+      <div class="card"><div class="small">Leads</div><div style="font-weight:800">${DATA.leads.filter(l=>l.assignedTo===provider.id).length}</div></div>
+      <div class="card"><div class="small">Completed</div><div style="font-weight:800">${DATA.leads.filter(l=>l.assignedTo===provider.id && l.status==='completed').length}</div></div>
+      <div class="card"><div class="small">Wallet</div><div style="font-weight:800">${formatCurrency(provider.wallet)}</div></div>
+    </div></div>`;
+  }
+  if(tab==='leads'){
+    const rows = DATA.leads.filter(l=>l.status==='open' || l.assignedTo===provider.id).map(l=>{
+      const btn = l.status==='open'?`<button class="btn" onclick="claimLead('${l.id}', ${provider.id})">Claim</button>`: (l.assignedTo===provider.id && l.status!=='completed'? `<button class="btn" onclick="completeLead('${l.id}', ${provider.id})">Complete</button>`: '');
+      return `<tr><td>${l.id}</td><td>${l.service}</td><td>${l.city}</td><td>${l.status}</td><td>${btn}</td></tr>`;
+    }).join('');
+    main.innerHTML = `<div class="card"><h3>Leads</h3><table style="margin-top:8px"><thead><tr><th>ID</th><th>Service</th><th>City</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+  if(tab==='jobs'){ renderProviderTab('leads'); }
+  if(tab==='wallet'){
+    main.innerHTML = `<div class="card"><h3>Wallet</h3><div class="small">Balance: <strong>${formatCurrency(provider.wallet)}</strong></div>
+      <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end"><button class="btn" onclick="requestPayout(${provider.id})">Request Payout</button></div>
+    </div>`;
+  }
+  if(tab==='profile'){
+    main.innerHTML = `<div class="card"><h3>Profile</h3>
+      <div style="margin-top:8px"><label class="small">Business</label><input id="p_business" value="${provider.business}" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef2f7;margin-top:6px"/></div>
+      <div style="margin-top:8px"><label class="small">About</label><textarea id="p_about" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef2f7;margin-top:6px">${provider.about || ''}</textarea></div>
+      <div style="margin-top:8px;display:flex;justify-content:flex-end"><button class="btn" onclick="saveProviderProfile(${provider.id})">Save</button></div></div>`;
+  }
+}
+
+function renderAdminTab(tab){
+  const main = $('dashMain'); main.innerHTML = '';
+  if(tab==='overview'){
+    main.innerHTML = `<div class="card"><h3>Admin Overview</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px">
+        <div class="card"><div class="small">Providers</div><div style="font-weight:800">${DATA.providers.length}</div></div>
+        <div class="card"><div class="small">Users</div><div style="font-weight:800">${DATA.users.length}</div></div>
+        <div class="card"><div class="small">Open Leads</div><div style="font-weight:800">${DATA.leads.filter(l=>l.status==='open').length}</div></div>
+        <div class="card"><div class="small">Pending Payouts</div><div style="font-weight:800">₹ ${DATA.payouts.filter(p=>p.status==='pending').reduce((s,x)=>s+x.amount,0)}</div></div>
+      </div></div>`;
+  }
+  if(tab==='providers'){
+    const rows = DATA.providers.map(p=>`<tr><td>${p.name}</td><td>${p.business}</td><td>${p.city}</td><td>${p.kyc}</td><td><button class="btn" onclick="adminToggleKyc(${p.id})">${p.kyc==='verified'?'Reject':'Verify'}</button></td></tr>`).join('');
+    main.innerHTML = `<div class="card"><h3>Providers</h3><table style="margin-top:8px"><thead><tr><th>Name</th><th>Business</th><th>City</th><th>KYC</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+  if(tab==='customers'){
+    const rows = DATA.users.map(u=>`<tr><td>${u.name}</td><td>${u.phone || '-'}</td><td>${u.city}</td></tr>`).join('');
+    main.innerHTML = `<div class="card"><h3>Customers</h3><table style="margin-top:8px"><thead><tr><th>Name</th><th>Phone</th><th>City</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+  if(tab==='leads'){
+    const rows = DATA.leads.map(l=>`<tr><td>${l.id}</td><td>${l.service}</td><td>${l.city}</td><td>${l.status}</td><td>${l.assignedTo? DATA.providers.find(p=>p.id===l.assignedTo).name : '—'}</td></tr>`).join('');
+    main.innerHTML = `<div class="card"><h3>All Leads</h3><table style="margin-top:8px"><thead><tr><th>ID</th><th>Service</th><th>City</th><th>Status</th><th>Provider</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+  if(tab==='payouts'){
+    const rows = DATA.payouts.map(p=>`<tr><td>${p.provider}</td><td>₹ ${p.amount}</td><td>${p.date}</td><td>${p.status}</td><td>${p.status==='pending'?`<button class="btn" onclick="adminMarkPaid('${p.id}')">Mark Paid</button>`:''}</td></tr>`).join('');
+    main.innerHTML = `<div class="card"><h3>Payouts</h3><table style="margin-top:8px"><thead><tr><th>Provider</th><th>Amount</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+  if(tab==='categories'){
+    const cats = DATA.categories.map((c,i)=>`<li style="margin-bottom:6px">${c} <button class="btn-ghost" onclick="adminRemoveCategory(${i})">Delete</button></li>`).join('');
+    main.innerHTML = `<div class="card"><h3>Categories</h3><div style="margin-top:8px"><input id="newCatName" placeholder="New category" style="padding:8px;border-radius:8px;border:1px solid #eef2f7"/><button class="btn" onclick="adminAddCategory()" style="margin-left:8px">Add</button></div><ul style="margin-top:12px">${cats}</ul></div>`;
+  }
+}
+
+/* ===========================
+   Admin actions
+   =========================== */
+function adminToggleKyc(pid){
+  const p = DATA.providers.find(x=>x.id===pid);
+  if(!p) return;
+  p.kyc = p.kyc==='verified' ? 'rejected' : 'verified';
+  saveData(); renderAdminTab('providers'); alert('KYC updated');
+}
+function adminVerifyAll(){
+  DATA.providers.forEach(p=>{ if(p.kyc==='pending') p.kyc='verified'; });
+  saveData(); alert('All pending marked verified'); renderAdminTab('providers');
+}
+function adminAddCategory(){
+  const v = $('newCatName').value.trim();
+  if(!v) return alert('Enter name');
+  DATA.categories.push(v); saveData(); renderAdminTab('categories');
+}
+function adminRemoveCategory(i){ DATA.categories.splice(i,1); saveData(); renderAdminTab('categories'); }
+function adminMarkPaid(pid){
+  const p = DATA.payouts.find(x=>x.id===pid);
+  if(p){ p.status='paid'; saveData(); renderAdminTab('payouts'); alert('Marked paid'); }
+}
+
+/* ===========================
+   Provider actions
+   =========================== */
+function claimLead(leadId, providerId){
+  const lead = DATA.leads.find(l=>l.id===leadId);
+  if(!lead || lead.status!=='open') return alert('Cannot claim');
+  lead.assignedTo = providerId; lead.status = 'assigned'; saveData(); renderProviderTab('leads'); alert('Lead claimed');
+}
+function completeLead(leadId, providerId){
+  const lead = DATA.leads.find(l=>l.id===leadId);
+  if(!lead || lead.assignedTo!==providerId) return alert('Cannot complete');
+  lead.status = 'completed'; saveData(); renderProviderTab('leads'); alert('Marked completed');
+}
+function saveProviderProfile(providerId){
+  const p = DATA.providers.find(x=>x.id===providerId);
+  p.business = $('p_business').value;
+  p.about = $('p_about').value;
+  saveData(); alert('Saved'); renderProviderTab('profile');
+}
+function requestPayout(providerId){
+  const p = DATA.providers.find(x=>x.id===providerId);
+  if(p.wallet <= 0) return alert('No balance');
+  const id = uid('PO');
+  DATA.payouts.push({ id, provider: p.business, amount: p.wallet, date: today(), status:'pending' });
+  p.wallet = 0; saveData(); alert('Payout requested'); renderProviderTab('wallet');
+}
+
+/* ===========================
+   User actions
+   =========================== */
+function userTopup(){
+  const amt = +prompt('Top-up amount (₹)', '500');
+  if(!amt || amt<=0) return;
+  const user = DATA.users.find(u=>u.id===DATA.currentUser.id);
+  user.wallet += amt; saveData(); alert('Wallet topped up'); renderUserTab('wallet');
+}
+function saveUserProfile(){ const user = DATA.users.find(u=>u.id===DATA.currentUser.id); user.name = $('u_name').value; saveData(); alert('Saved'); renderUserTab('profile'); }
+
+/* ===========================
+   Misc admin utilities
+   =========================== */
+function seedSample(){
+  if(!confirm('Seed sample leads and users?')) return;
+  DATA.leads.push({ id: uid('L'), userId: DATA.users[0].id, service: 'Plumbing', city:'Ahmedabad', budget:499, status:'open', assignedTo:null, created: today() });
+  DATA.leads.push({ id: uid('L'), userId: DATA.users[0].id, service: 'AC Repair', city:'Surat', budget:799, status:'open', assignedTo:null, created: today() });
+  saveData(); alert('Seeded'); renderHome();
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'servicepro-data.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ===========================
+   Helpers & startup
+   =========================== */
+function simulateCall(){ alert('Simulating call — this is a demo.'); }
+function adminConsole(){ goto('admin'); }
+function openModalManual(html){ showModal(html); }
+function closeAll(){ closeModal(); }
+
+(function init(){
+  renderHome();
+  updateLoginUI();
+  // keep modal close on backdrop click
+  $('modal').addEventListener('click', (e)=>{ if(e.target.id==='modal') closeModal(); });
+})();
+</script>
+</body>
+</html>
